@@ -40,7 +40,7 @@
   - Implement client-side password strength validation
   - _Requirements: 1.1, 1.3, 1.4, 1.5, 1.6, 2.1, 2.6_
 
-- [ ] 7. Create authentication pages
+- [x] 7. Create authentication pages
   - Build login page (/login) with LoginForm component and navigation
   - Build register page (/register) with RegisterForm component and navigation
   - Build forgot password page (/forgot-password) with email input form
