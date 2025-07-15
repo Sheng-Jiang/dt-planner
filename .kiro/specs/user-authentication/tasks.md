@@ -13,7 +13,7 @@
   - Add user lookup functions by email and ID
   - _Requirements: 1.2, 2.2, 4.2_
 
-- [ ] 3. Implement core authentication API endpoints
+- [x] 3. Implement core authentication API endpoints
   - Create POST /api/auth/register endpoint with validation and user creation
   - Create POST /api/auth/login endpoint with credential verification and JWT generation
   - Create POST /api/auth/logout endpoint for session termination

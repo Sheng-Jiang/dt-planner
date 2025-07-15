@@ -1,20 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-
-// Types for authentication
-export interface User {
-  id: string;
-  email: string;
-  createdAt: string;
-  lastLoginAt: string;
-}
-
-export interface UserRecord extends User {
-  passwordHash: string;
-  resetToken?: string;
-  resetTokenExpiry?: string;
-}
+import { User, UserRecord } from '@/types/auth';
 
 export interface JWTPayload {
   userId: string;
