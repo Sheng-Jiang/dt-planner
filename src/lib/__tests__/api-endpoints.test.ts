@@ -7,7 +7,10 @@ import { POST as registerPOST } from '@/app/api/auth/register/route'
 import { POST as loginPOST } from '@/app/api/auth/login/route'
 import { POST as logoutPOST } from '@/app/api/auth/logout/route'
 import { GET as meGET } from '@/app/api/auth/me/route'
-import { deleteUser } from '@/lib/userOperations'
+import { POST as forgotPasswordPOST } from '@/app/api/auth/forgot-password/route'
+import { POST as resetPasswordPOST } from '@/app/api/auth/reset-password/route'
+import { deleteUser, getUserByEmail, setResetToken } from '@/lib/userOperations'
+import { generateResetToken, generateResetTokenExpiry } from '@/lib/auth'
 
 // Mock environment variables
 process.env.JWT_SECRET = 'test-secret-key'
@@ -293,4 +296,259 @@ describe('Authentication API Endpoints', () => {
       expect(data.message).toBe('Authentication token is invalid or expired')
     })
   })
-})
+
+  describe('POST /api/auth/forgot-password', () => {
+    beforeEach(async () => {
+      // Create a test user first
+      const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: testEmail,
+          password: testPassword,
+          confirmPassword: testPassword
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const registerResponse = await registerPOST(registerRequest)
+      const registerData = await registerResponse.json()
+      testUserId = registerData.user.id
+    })
+
+    it('should handle forgot password request for existing user', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: testEmail
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await forgotPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('If the email exists, a reset link has been sent')
+
+      // Verify reset token was set in database
+      const user = await getUserByEmail(testEmail)
+      expect(user).toBeTruthy()
+    })
+
+    it('should handle forgot password request for non-existing user', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'nonexistent@example.com'
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await forgotPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('If the email exists, a reset link has been sent')
+    })
+
+    it('should reject forgot password request with invalid email', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'invalid-email'
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await forgotPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.message).toBe('Please enter a valid email address')
+    })
+
+    it('should reject forgot password request without email', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({}),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await forgotPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.message).toBe('Email is required')
+    })
+  })
+
+  describe('POST /api/auth/reset-password', () => {
+    let resetToken: string
+
+    beforeEach(async () => {
+      // Create a test user first
+      const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: testEmail,
+          password: testPassword,
+          confirmPassword: testPassword
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const registerResponse = await registerPOST(registerRequest)
+      const registerData = await registerResponse.json()
+      testUserId = registerData.user.id
+
+      // Set up reset token
+      resetToken = generateResetToken()
+      const resetTokenExpiry = generateResetTokenExpiry()
+      await setResetToken(testEmail, resetToken, resetTokenExpiry)
+    })
+
+    it('should reset password with valid token', async () => {
+      const newPassword = 'newpassword123'
+      const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: resetToken,
+          newPassword: newPassword
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await resetPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.message).toBe('Password has been successfully reset')
+
+      // Verify user can login with new password
+      const loginRequest = new NextRequest('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: testEmail,
+          password: newPassword
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const loginResponse = await loginPOST(loginRequest)
+      expect(loginResponse.status).toBe(200)
+    })
+
+    it('should reject reset password with invalid token', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: 'invalid-token',
+          newPassword: 'newpassword123'
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await resetPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.message).toBe('Reset link is invalid or expired')
+    })
+
+    it('should reject reset password with short password', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: resetToken,
+          newPassword: '123'
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await resetPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.message).toBe('Password must be at least 8 characters long')
+    })
+
+    it('should reject reset password without token', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          newPassword: 'newpassword123'
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await resetPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.message).toBe('Reset token is required')
+    })
+
+    it('should reject reset password without new password', async () => {
+      const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: resetToken
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await resetPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.message).toBe('New password is required')
+    })
+
+    it('should reject expired reset token', async () => {
+      // Set an expired token
+      const expiredToken = generateResetToken()
+      const expiredDate = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() // 2 hours ago
+      await setResetToken(testEmail, expiredToken, expiredDate)
+
+      const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({
+          token: expiredToken,
+          newPassword: 'newpassword123'
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const response = await resetPasswordPOST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.message).toBe('Reset link is invalid or expired')
+    })
+  })})

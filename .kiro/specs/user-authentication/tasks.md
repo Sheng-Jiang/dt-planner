@@ -20,7 +20,7 @@
   - Create GET /api/auth/me endpoint for current user retrieval
   - _Requirements: 1.1, 1.2, 2.1, 2.2, 3.1, 3.2_
 
-- [ ] 4. Implement password reset API endpoints
+- [x] 4. Implement password reset API endpoints
   - Create POST /api/auth/forgot-password endpoint for reset token generation
   - Create POST /api/auth/reset-password endpoint for password updates with token validation
   - Add email validation and token expiry handling
