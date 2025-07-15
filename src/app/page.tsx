@@ -4,10 +4,14 @@ import { useState, useRef } from 'react'
 import { CompanyObjective } from '@/types/strategy'
 import StrategyCanvas from '@/components/StrategyCanvas'
 import ObjectivePalette from '@/components/ObjectivePalette'
+import UserMenu from '@/components/auth/UserMenu'
+import { useAuth } from '@/contexts/AuthContext'
+import Link from 'next/link'
 
 export default function Home() {
   const [objectives, setObjectives] = useState<CompanyObjective[]>([])
   const [showRecommendations, setShowRecommendations] = useState(false)
+  const { user, isLoading } = useAuth()
 
   const handleAddObjective = (objective: Omit<CompanyObjective, 'id' | 'position'>) => {
     const newObjective: CompanyObjective = {
@@ -40,12 +44,32 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-gray-900">
               Digital Transformation Recommendations
             </h1>
-            <button
-              onClick={() => setShowRecommendations(false)}
-              className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-            >
-              Back to Strategy Canvas
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowRecommendations(false)}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+              >
+                Back to Strategy Canvas
+              </button>
+              {user ? (
+                <UserMenu />
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="bg-white rounded-lg shadow-lg p-6">
@@ -154,13 +178,33 @@ export default function Home() {
               <h1 className="text-3xl font-bold text-gray-900">
                 Company Strategy Canvas
               </h1>
-              <button
-                onClick={handleGenerateRecommendations}
-                disabled={objectives.length === 0}
-                className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-              >
-                Generate Recommendations
-              </button>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleGenerateRecommendations}
+                  disabled={objectives.length === 0}
+                  className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  Generate Recommendations
+                </button>
+                {user ? (
+                  <UserMenu />
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Link
+                      href="/login"
+                      className="px-4 py-2 text-primary-600 hover:text-primary-700 font-medium"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
             
             <StrategyCanvas
