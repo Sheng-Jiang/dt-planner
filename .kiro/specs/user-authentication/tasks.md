@@ -33,7 +33,7 @@
   - Include token persistence and automatic authentication on app load
   - _Requirements: 2.4, 5.1, 5.2, 5.4_
 
-- [ ] 6. Build authentication form components
+- [x] 6. Build authentication form components
   - Create LoginForm component with email/password fields and validation
   - Create RegisterForm component with email, password, and confirm password fields
   - Add form validation, error display, and loading states
