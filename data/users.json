@@ -1,3 +1,11 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "cc925d14-9054-4ad4-8321-2f0ba2bb174d",
+      "email": "test@example.com",
+      "passwordHash": "$2b$12$ytt7bf8CgYAEUvZ0EaLIw.5IaTJJlOOsNCWNBg23PTCwFkAIqgnyG",
+      "createdAt": "2025-07-16T00:41:35.227Z",
+      "lastLoginAt": "2025-07-16T00:41:35.227Z"
+    }
+  ]
 }
