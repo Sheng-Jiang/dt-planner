@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { validateAuthForm, formatValidationErrors } from '@/lib/errorHandling'
+import { ErrorDisplay, FieldError, SuccessDisplay } from '@/components/auth/ErrorDisplay'
 
 // Prevent static generation for this page
 export const dynamic = 'force-dynamic'
@@ -13,6 +15,7 @@ function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ password?: string; confirmPassword?: string }>({})
   const [token, setToken] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
   
@@ -29,27 +32,20 @@ function ResetPasswordForm() {
     setToken(tokenParam)
   }, [searchParams])
 
-  const validatePassword = (password: string) => {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters long'
-    }
-    return null
+  const validateForm = () => {
+    const validationErrors = validateAuthForm({ password, confirmPassword })
+    const formattedErrors = formatValidationErrors(validationErrors)
+    
+    setFieldErrors(formattedErrors)
+    return validationErrors.length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
 
-    // Validate password
-    const passwordError = validatePassword(password)
-    if (passwordError) {
-      setError(passwordError)
-      return
-    }
-
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
+    if (!validateForm()) {
       return
     }
 
@@ -68,7 +64,8 @@ function ResetPasswordForm() {
         router.push('/login')
       }, 3000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -157,9 +154,12 @@ function ResetPasswordForm() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-md relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm ${
+                  fieldErrors.password ? 'border-red-300' : 'border-gray-300'
+                }`}
                 placeholder="New password"
               />
+              <FieldError error={fieldErrors.password} />
             </div>
             
             <div>
@@ -174,16 +174,17 @@ function ResetPasswordForm() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className={`appearance-none rounded-md relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm ${
+                  fieldErrors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                }`}
                 placeholder="Confirm new password"
               />
+              <FieldError error={fieldErrors.confirmPassword} />
             </div>
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
+            <ErrorDisplay error={error} variant="banner" />
           )}
 
           <div>

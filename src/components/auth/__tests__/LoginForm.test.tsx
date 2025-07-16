@@ -48,9 +48,11 @@ describe('LoginForm', () => {
     render(<LoginForm />)
     
     const emailInput = screen.getByLabelText(/email address/i)
+    const passwordInput = screen.getByLabelText(/password/i)
     const submitButton = screen.getByRole('button', { name: /sign in/i })
     
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } })
+    fireEvent.change(passwordInput, { target: { value: 'somepassword' } })
     fireEvent.click(submitButton)
 
     await waitFor(() => {

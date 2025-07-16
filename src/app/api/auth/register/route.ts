@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { hashPassword, isValidEmail, isValidPassword } from '@/lib/auth'
 import { createUser } from '@/lib/userOperations'
+import { createErrorResponse } from '@/lib/errorHandling'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!email || !password || !confirmPassword) {
       return NextResponse.json(
-        { error: 'Missing required fields', message: 'Email, password, and confirm password are required' },
+        createErrorResponse('MISSING_REQUIRED_FIELDS', 'Email, password, and confirm password are required', 400),
         { status: 400 }
       )
     }
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     // Validate email format
     if (!isValidEmail(email)) {
       return NextResponse.json(
-        { error: 'Invalid email', message: 'Please enter a valid email address' },
+        createErrorResponse('INVALID_EMAIL', 'Please enter a valid email address', 400),
         { status: 400 }
       )
     }
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Validate password strength
     if (!isValidPassword(password)) {
       return NextResponse.json(
-        { error: 'Invalid password', message: 'Password must be at least 8 characters long' },
+        createErrorResponse('INVALID_PASSWORD', 'Password must be at least 8 characters long', 400),
         { status: 400 }
       )
     }
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
     // Validate password confirmation
     if (password !== confirmPassword) {
       return NextResponse.json(
-        { error: 'Password mismatch', message: 'Passwords do not match' },
+        createErrorResponse('PASSWORD_MISMATCH', 'Passwords do not match', 400),
         { status: 400 }
       )
     }
@@ -62,13 +63,13 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof Error && error.message === 'User with this email already exists') {
       return NextResponse.json(
-        { error: 'Email exists', message: 'Email already registered' },
+        createErrorResponse('EMAIL_EXISTS', 'Email already registered', 409),
         { status: 409 }
       )
     }
 
     return NextResponse.json(
-      { error: 'Internal server error', message: 'An error occurred during registration' },
+      createErrorResponse('SERVER_ERROR', 'An error occurred during registration', 500),
       { status: 500 }
     )
   }

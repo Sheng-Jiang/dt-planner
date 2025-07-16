@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createErrorResponse } from '@/lib/errorHandling'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     console.error('Logout error:', error)
     
     return NextResponse.json(
-      { error: 'Internal server error', message: 'An error occurred during logout' },
+      createErrorResponse('SERVER_ERROR', 'An error occurred during logout', 500),
       { status: 500 }
     )
   }

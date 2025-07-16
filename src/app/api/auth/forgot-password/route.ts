@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail, setResetToken } from '@/lib/userOperations';
 import { generateResetToken, generateResetTokenExpiry, isValidEmail } from '@/lib/auth';
+import { createErrorResponse } from '@/lib/errorHandling';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,14 +11,14 @@ export async function POST(request: NextRequest) {
     // Validate input
     if (!email) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Email is required' },
+        createErrorResponse('MISSING_REQUIRED_FIELDS', 'Email is required', 400),
         { status: 400 }
       );
     }
 
     if (!isValidEmail(email)) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Please enter a valid email address' },
+        createErrorResponse('INVALID_EMAIL', 'Please enter a valid email address', 400),
         { status: 400 }
       );
     }
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Forgot password error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error', message: 'An error occurred while processing your request' },
+      createErrorResponse('SERVER_ERROR', 'An error occurred while processing your request', 500),
       { status: 500 }
     );
   }

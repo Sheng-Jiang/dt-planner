@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyJWTToken } from '@/lib/auth'
 import { getUserById } from '@/lib/userOperations'
+import { createErrorResponse } from '@/lib/errorHandling'
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
 
     if (!token) {
       return NextResponse.json(
-        { error: 'No token', message: 'Authentication token not found' },
+        createErrorResponse('INVALID_TOKEN', 'Authentication token not found', 401),
         { status: 401 }
       )
     }
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
     const payload = verifyJWTToken(token)
     if (!payload) {
       return NextResponse.json(
-        { error: 'Invalid token', message: 'Authentication token is invalid or expired' },
+        createErrorResponse('INVALID_TOKEN', 'Authentication token is invalid or expired', 401),
         { status: 401 }
       )
     }
@@ -27,7 +28,7 @@ export async function GET(request: NextRequest) {
     const user = await getUserById(payload.userId)
     if (!user) {
       return NextResponse.json(
-        { error: 'User not found', message: 'User account no longer exists' },
+        createErrorResponse('USER_NOT_FOUND', 'User account no longer exists', 404),
         { status: 404 }
       )
     }
@@ -48,7 +49,7 @@ export async function GET(request: NextRequest) {
     console.error('Get current user error:', error)
     
     return NextResponse.json(
-      { error: 'Internal server error', message: 'An error occurred while fetching user data' },
+      createErrorResponse('SERVER_ERROR', 'An error occurred while fetching user data', 500),
       { status: 500 }
     )
   }

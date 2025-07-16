@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { validateAuthForm, formatValidationErrors } from '@/lib/errorHandling'
+import { ErrorDisplay, FieldError, SuccessDisplay } from '@/components/auth/ErrorDisplay'
 
 // Prevent static generation for this page
 export const dynamic = 'force-dynamic'
@@ -12,18 +14,34 @@ export default function ForgotPasswordPage() {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string }>({})
   const { resetPassword } = useAuth()
+
+  const validateForm = () => {
+    const validationErrors = validateAuthForm({ email })
+    const formattedErrors = formatValidationErrors(validationErrors)
+    
+    setFieldErrors(formattedErrors)
+    return validationErrors.length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setFieldErrors({})
+
+    if (!validateForm()) {
+      return
+    }
+
     setIsLoading(true)
 
     try {
       await resetPassword(email)
       setIsSubmitted(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -79,15 +97,16 @@ export default function ForgotPasswordPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+              className={`appearance-none rounded-md relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm ${
+                fieldErrors.email ? 'border-red-300' : 'border-gray-300'
+              }`}
               placeholder="Email address"
             />
+            <FieldError error={fieldErrors.email} />
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
+            <ErrorDisplay error={error} variant="banner" />
           )}
 
           <div>

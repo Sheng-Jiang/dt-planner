@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, AuthContextType } from '@/types/auth'
+import { mapApiError, getAuthErrorMessage, AuthError } from '@/lib/errorHandling'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -55,17 +56,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         body: JSON.stringify({ email, password }),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed')
+        const data = await response.json()
+        const authError = mapApiError({ response: { data, status: response.status } })
+        const userMessage = getAuthErrorMessage(authError.code, authError.message)
+        setError(userMessage)
+        throw new Error(userMessage)
       }
 
+      const data = await response.json()
       setUser(data.user)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed'
-      setError(errorMessage)
-      throw new Error(errorMessage)
+      if (err instanceof Error && err.message !== 'Failed to fetch') {
+        // Error already handled above
+        throw err
+      }
+      
+      // Handle network errors
+      const authError = mapApiError(err)
+      const userMessage = getAuthErrorMessage(authError.code, authError.message)
+      setError(userMessage)
+      throw new Error(userMessage)
     } finally {
       setIsLoading(false)
     }
@@ -105,18 +116,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         body: JSON.stringify({ email, password }),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed')
+        const data = await response.json()
+        const authError = mapApiError({ response: { data, status: response.status } })
+        const userMessage = getAuthErrorMessage(authError.code, authError.message)
+        setError(userMessage)
+        throw new Error(userMessage)
       }
 
       // Registration successful - user needs to login
       // Don't automatically log them in for security
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Registration failed'
-      setError(errorMessage)
-      throw new Error(errorMessage)
+      if (err instanceof Error && err.message !== 'Failed to fetch') {
+        // Error already handled above
+        throw err
+      }
+      
+      // Handle network errors
+      const authError = mapApiError(err)
+      const userMessage = getAuthErrorMessage(authError.code, authError.message)
+      setError(userMessage)
+      throw new Error(userMessage)
     } finally {
       setIsLoading(false)
     }
@@ -135,15 +155,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
         body: JSON.stringify({ email }),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.message || 'Password reset request failed')
+        const data = await response.json()
+        const authError = mapApiError({ response: { data, status: response.status } })
+        const userMessage = getAuthErrorMessage(authError.code, authError.message)
+        setError(userMessage)
+        throw new Error(userMessage)
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Password reset request failed'
-      setError(errorMessage)
-      throw new Error(errorMessage)
+      if (err instanceof Error && err.message !== 'Failed to fetch') {
+        // Error already handled above
+        throw err
+      }
+      
+      // Handle network errors
+      const authError = mapApiError(err)
+      const userMessage = getAuthErrorMessage(authError.code, authError.message)
+      setError(userMessage)
+      throw new Error(userMessage)
     } finally {
       setIsLoading(false)
     }
@@ -162,15 +191,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
         body: JSON.stringify({ token, newPassword }),
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.message || 'Password update failed')
+        const data = await response.json()
+        const authError = mapApiError({ response: { data, status: response.status } })
+        const userMessage = getAuthErrorMessage(authError.code, authError.message)
+        setError(userMessage)
+        throw new Error(userMessage)
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Password update failed'
-      setError(errorMessage)
-      throw new Error(errorMessage)
+      if (err instanceof Error && err.message !== 'Failed to fetch') {
+        // Error already handled above
+        throw err
+      }
+      
+      // Handle network errors
+      const authError = mapApiError(err)
+      const userMessage = getAuthErrorMessage(authError.code, authError.message)
+      setError(userMessage)
+      throw new Error(userMessage)
     } finally {
       setIsLoading(false)
     }

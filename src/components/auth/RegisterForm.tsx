@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { validateAuthForm, formatValidationErrors, validatePasswordStrength } from '@/lib/errorHandling'
+import { ErrorDisplay, FieldError } from '@/components/auth/ErrorDisplay'
 
 interface RegisterFormProps {
   onSuccess?: () => void
@@ -33,43 +35,13 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const { register } = useAuth()
 
   const checkPasswordStrength = (password: string): PasswordStrength => {
-    const feedback: string[] = []
-    let score = 0
-
-    if (password.length < 8) {
-      feedback.push('Password must be at least 8 characters long')
-    } else {
-      score += 1
-    }
-
-    if (!/[a-z]/.test(password)) {
-      feedback.push('Include at least one lowercase letter')
-    } else {
-      score += 1
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      feedback.push('Include at least one uppercase letter')
-    } else {
-      score += 1
-    }
-
-    if (!/\d/.test(password)) {
-      feedback.push('Include at least one number')
-    } else {
-      score += 1
-    }
-
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      feedback.push('Include at least one special character')
-    } else {
-      score += 1
-    }
-
+    const feedback = validatePasswordStrength(password)
+    const score = Math.max(0, 5 - feedback.length)
+    
     return {
       score,
       feedback,
-      isValid: score >= 2 && password.length >= 8
+      isValid: feedback.length === 0
     }
   }
 
@@ -91,35 +63,16 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   }
 
   const validateForm = () => {
-    const newErrors: { 
-      email?: string
-      password?: string
-      confirmPassword?: string 
-    } = {}
+    const validationErrors = validateAuthForm({ email, password, confirmPassword })
+    const formattedErrors = formatValidationErrors(validationErrors)
     
-    // Email validation
-    if (!email.trim()) {
-      newErrors.email = 'Email is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email address'
+    // Add password strength validation
+    if (password && !passwordStrength.isValid) {
+      formattedErrors.password = 'Password does not meet minimum requirements'
     }
     
-    // Password validation
-    if (!password) {
-      newErrors.password = 'Password is required'
-    } else if (!passwordStrength.isValid) {
-      newErrors.password = 'Password does not meet minimum requirements'
-    }
-    
-    // Confirm password validation
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password'
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
-    }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    setErrors(formattedErrors)
+    return validationErrors.length === 0 && passwordStrength.isValid
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -130,24 +83,21 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     }
 
     setIsLoading(true)
-    setErrors({})
+    setErrors({ general: undefined }) // Only clear general errors, keep field errors
 
     try {
       await register(email, password)
       onSuccess?.()
     } catch (error: any) {
-      if (error.message?.includes('already registered')) {
-        setErrors({ general: 'Email already registered' })
-      } else {
-        setErrors({ general: 'Registration failed. Please try again.' })
-      }
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.'
+      setErrors({ general: errorMessage })
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
           Email address
@@ -158,7 +108,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             name="email"
             type="email"
             autoComplete="email"
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
@@ -166,9 +115,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             }`}
             placeholder="Enter your email"
           />
-          {errors.email && (
-            <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-          )}
+          <FieldError error={errors.email} />
         </div>
       </div>
 
@@ -182,7 +129,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             name="password"
             type="password"
             autoComplete="new-password"
-            required
             value={password}
             onChange={(e) => handlePasswordChange(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
@@ -190,9 +136,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             }`}
             placeholder="Create a password"
           />
-          {errors.password && (
-            <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-          )}
+          <FieldError error={errors.password} />
         </div>
         
         {password && (
@@ -232,7 +176,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             name="confirmPassword"
             type="password"
             autoComplete="new-password"
-            required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
@@ -240,22 +183,18 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             }`}
             placeholder="Confirm your password"
           />
-          {errors.confirmPassword && (
-            <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>
-          )}
+          <FieldError error={errors.confirmPassword} />
         </div>
       </div>
 
       {errors.general && (
-        <div className="rounded-md bg-red-50 p-4">
-          <p className="text-sm text-red-800">{errors.general}</p>
-        </div>
+        <ErrorDisplay error={errors.general} variant="banner" />
       )}
 
       <div>
         <button
           type="submit"
-          disabled={isLoading || !passwordStrength.isValid}
+          disabled={isLoading}
           className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Creating account...' : 'Create account'}

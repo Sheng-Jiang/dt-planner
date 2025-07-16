@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyPassword, generateJWTToken, isValidEmail } from '@/lib/auth'
 import { getUserRecordByEmail, updateLastLogin } from '@/lib/userOperations'
+import { createErrorResponse } from '@/lib/errorHandling'
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!email || !password) {
       return NextResponse.json(
-        { error: 'Missing credentials', message: 'Email and password are required' },
+        createErrorResponse('MISSING_CREDENTIALS', 'Email and password are required', 400),
         { status: 400 }
       )
     }
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     // Validate email format
     if (!isValidEmail(email)) {
       return NextResponse.json(
-        { error: 'Invalid credentials', message: 'Invalid email or password' },
+        createErrorResponse('INVALID_CREDENTIALS', 'Invalid email or password', 401),
         { status: 401 }
       )
     }
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
     const userRecord = await getUserRecordByEmail(email.toLowerCase().trim())
     if (!userRecord) {
       return NextResponse.json(
-        { error: 'Invalid credentials', message: 'Invalid email or password' },
+        createErrorResponse('INVALID_CREDENTIALS', 'Invalid email or password', 401),
         { status: 401 }
       )
     }
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     const isPasswordValid = await verifyPassword(password, userRecord.passwordHash)
     if (!isPasswordValid) {
       return NextResponse.json(
-        { error: 'Invalid credentials', message: 'Invalid email or password' },
+        createErrorResponse('INVALID_CREDENTIALS', 'Invalid email or password', 401),
         { status: 401 }
       )
     }
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
     console.error('Login error:', error)
     
     return NextResponse.json(
-      { error: 'Internal server error', message: 'An error occurred during login' },
+      createErrorResponse('SERVER_ERROR', 'An error occurred during login', 500),
       { status: 500 }
     )
   }

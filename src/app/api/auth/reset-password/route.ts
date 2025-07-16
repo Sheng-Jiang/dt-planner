@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByResetToken, clearResetToken, updateUser } from '@/lib/userOperations';
 import { hashPassword, isValidPassword, getPasswordValidationError } from '@/lib/auth';
+import { createErrorResponse } from '@/lib/errorHandling';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,14 +11,14 @@ export async function POST(request: NextRequest) {
     // Validate input
     if (!token) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Reset token is required' },
+        createErrorResponse('MISSING_REQUIRED_FIELDS', 'Reset token is required', 400),
         { status: 400 }
       );
     }
 
     if (!newPassword) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'New password is required' },
+        createErrorResponse('MISSING_REQUIRED_FIELDS', 'New password is required', 400),
         { status: 400 }
       );
     }
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     const passwordError = getPasswordValidationError(newPassword);
     if (passwordError) {
       return NextResponse.json(
-        { error: 'Bad Request', message: passwordError },
+        createErrorResponse('INVALID_PASSWORD', passwordError, 400),
         { status: 400 }
       );
     }
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     
     if (!user) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Reset link is invalid or expired' },
+        createErrorResponse('INVALID_RESET_TOKEN', 'Reset link is invalid or expired', 400),
         { status: 400 }
       );
     }
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Reset password error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error', message: 'An error occurred while resetting your password' },
+      createErrorResponse('SERVER_ERROR', 'An error occurred while resetting your password', 500),
       { status: 500 }
     );
   }

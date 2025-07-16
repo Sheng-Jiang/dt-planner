@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { validateAuthForm, formatValidationErrors } from '@/lib/errorHandling'
+import { ErrorDisplay, FieldError } from '@/components/auth/ErrorDisplay'
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -25,7 +27,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       newErrors.email = 'Please enter a valid email address'
     }
     
-    // Password validation
+    // Password validation (only check if required for login)
     if (!password) {
       newErrors.password = 'Password is required'
     }
@@ -42,20 +44,21 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     }
 
     setIsLoading(true)
-    setErrors({})
+    setErrors({ general: undefined }) // Only clear general errors, keep field errors
 
     try {
       await login(email, password)
       onSuccess?.()
     } catch (error) {
-      setErrors({ general: 'Invalid email or password' })
+      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password'
+      setErrors({ general: errorMessage })
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
           Email address
@@ -66,7 +69,6 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             name="email"
             type="email"
             autoComplete="email"
-            required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
@@ -74,9 +76,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             }`}
             placeholder="Enter your email"
           />
-          {errors.email && (
-            <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-          )}
+          <FieldError error={errors.email} />
         </div>
       </div>
 
@@ -90,7 +90,6 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             name="password"
             type="password"
             autoComplete="current-password"
-            required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
@@ -98,16 +97,12 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             }`}
             placeholder="Enter your password"
           />
-          {errors.password && (
-            <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-          )}
+          <FieldError error={errors.password} />
         </div>
       </div>
 
       {errors.general && (
-        <div className="rounded-md bg-red-50 p-4">
-          <p className="text-sm text-red-800">{errors.general}</p>
-        </div>
+        <ErrorDisplay error={errors.general} variant="banner" />
       )}
 
       <div>
