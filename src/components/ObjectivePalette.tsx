@@ -11,62 +11,62 @@ const objectiveTemplates = [
     title: 'Increase Revenue',
     description: 'Drive revenue growth through new channels',
     icon: '💰',
-    category: 'growth' as const
+    category: 'growth' as const,
   },
   {
     title: 'Improve Efficiency',
     description: 'Optimize operational processes',
     icon: '⚡',
-    category: 'efficiency' as const
+    category: 'efficiency' as const,
   },
   {
     title: 'Digital Innovation',
     description: 'Embrace emerging technologies',
     icon: '🚀',
-    category: 'innovation' as const
+    category: 'innovation' as const,
   },
   {
     title: 'Customer Experience',
     description: 'Enhance customer satisfaction',
     icon: '😊',
-    category: 'customer' as const
+    category: 'customer' as const,
   },
   {
     title: 'Market Expansion',
     description: 'Enter new markets and segments',
     icon: '🌍',
-    category: 'growth' as const
+    category: 'growth' as const,
   },
   {
     title: 'Cost Reduction',
     description: 'Reduce operational costs',
     icon: '📉',
-    category: 'efficiency' as const
+    category: 'efficiency' as const,
   },
   {
     title: 'Data-Driven Decisions',
     description: 'Leverage analytics for insights',
     icon: '📊',
-    category: 'innovation' as const
+    category: 'innovation' as const,
   },
   {
     title: 'Automation',
     description: 'Automate repetitive processes',
     icon: '🤖',
-    category: 'operations' as const
+    category: 'operations' as const,
   },
   {
     title: 'Security Enhancement',
     description: 'Strengthen cybersecurity posture',
     icon: '🔒',
-    category: 'operations' as const
+    category: 'operations' as const,
   },
   {
     title: 'Employee Productivity',
     description: 'Boost workforce efficiency',
     icon: '👥',
-    category: 'operations' as const
-  }
+    category: 'operations' as const,
+  },
 ]
 
 export default function ObjectivePalette({ onAddObjective }: ObjectivePaletteProps) {
@@ -76,7 +76,7 @@ export default function ObjectivePalette({ onAddObjective }: ObjectivePalettePro
         <h2 className="text-lg font-semibold text-gray-800">Strategy Objectives</h2>
         <p className="text-sm text-gray-600 mt-1">Drag objectives to the canvas</p>
       </div>
-      
+
       <div className="p-4 space-y-3">
         {objectiveTemplates.map((template, index) => (
           <div
@@ -89,13 +89,19 @@ export default function ObjectivePalette({ onAddObjective }: ObjectivePalettePro
               <div className="flex-1">
                 <h3 className="font-medium text-gray-800 text-sm">{template.title}</h3>
                 <p className="text-xs text-gray-600 mt-1">{template.description}</p>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs mt-2 ${
-                  template.category === 'growth' ? 'bg-green-100 text-green-800' :
-                  template.category === 'efficiency' ? 'bg-blue-100 text-blue-800' :
-                  template.category === 'innovation' ? 'bg-purple-100 text-purple-800' :
-                  template.category === 'customer' ? 'bg-orange-100 text-orange-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
+                <span
+                  className={`inline-block px-2 py-1 rounded-full text-xs mt-2 ${
+                    template.category === 'growth'
+                      ? 'bg-green-100 text-green-800'
+                      : template.category === 'efficiency'
+                        ? 'bg-blue-100 text-blue-800'
+                        : template.category === 'innovation'
+                          ? 'bg-purple-100 text-purple-800'
+                          : template.category === 'customer'
+                            ? 'bg-orange-100 text-orange-800'
+                            : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
                   {template.category}
                 </span>
               </div>

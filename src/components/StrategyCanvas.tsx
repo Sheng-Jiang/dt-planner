@@ -12,7 +12,7 @@ interface StrategyCanvasProps {
 export default function StrategyCanvas({
   objectives,
   onUpdateObjective,
-  onDeleteObjective
+  onDeleteObjective,
 }: StrategyCanvasProps) {
   const [draggedItem, setDraggedItem] = useState<string | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -22,22 +22,25 @@ export default function StrategyCanvas({
     const rect = e.currentTarget.getBoundingClientRect()
     setDragOffset({
       x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      y: e.clientY - rect.top,
     })
     setDraggedItem(objectiveId)
   }, [])
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!draggedItem || !canvasRef.current) return
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!draggedItem || !canvasRef.current) return
 
-    const canvasRect = canvasRef.current.getBoundingClientRect()
-    const newPosition = {
-      x: e.clientX - canvasRect.left - dragOffset.x,
-      y: e.clientY - canvasRect.top - dragOffset.y
-    }
+      const canvasRect = canvasRef.current.getBoundingClientRect()
+      const newPosition = {
+        x: e.clientX - canvasRect.left - dragOffset.x,
+        y: e.clientY - canvasRect.top - dragOffset.y,
+      }
 
-    onUpdateObjective(draggedItem, { position: newPosition })
-  }, [draggedItem, dragOffset, onUpdateObjective])
+      onUpdateObjective(draggedItem, { position: newPosition })
+    },
+    [draggedItem, dragOffset, onUpdateObjective]
+  )
 
   const handleMouseUp = useCallback(() => {
     setDraggedItem(null)
@@ -58,13 +61,15 @@ export default function StrategyCanvas({
             <div>
               <div className="text-4xl mb-4">🎯</div>
               <p className="text-lg">Start by adding objectives from the palette</p>
-              <p className="text-sm mt-2">Click on objectives from the left panel to add them to your strategy canvas</p>
+              <p className="text-sm mt-2">
+                Click on objectives from the left panel to add them to your strategy canvas
+              </p>
             </div>
           </div>
         )}
       </div>
 
-      {objectives.map((objective) => (
+      {objectives.map(objective => (
         <div
           key={objective.id}
           className="absolute cursor-move select-none"
@@ -72,32 +77,40 @@ export default function StrategyCanvas({
             left: objective.position.x,
             top: objective.position.y,
             transform: draggedItem === objective.id ? 'scale(1.05)' : 'scale(1)',
-            zIndex: draggedItem === objective.id ? 10 : 1
+            zIndex: draggedItem === objective.id ? 10 : 1,
           }}
-          onMouseDown={(e) => handleMouseDown(e, objective.id)}
+          onMouseDown={e => handleMouseDown(e, objective.id)}
         >
-          <div className={`bg-white border-2 rounded-lg p-4 shadow-lg max-w-xs ${
-            draggedItem === objective.id ? 'border-blue-500 shadow-xl' : 'border-gray-300'
-          }`}>
+          <div
+            className={`bg-white border-2 rounded-lg p-4 shadow-lg max-w-xs ${
+              draggedItem === objective.id ? 'border-blue-500 shadow-xl' : 'border-gray-300'
+            }`}
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-3 flex-1">
                 <div className="text-3xl">{objective.icon}</div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-800 text-sm">{objective.title}</h3>
                   <p className="text-xs text-gray-600 mt-1">{objective.description}</p>
-                  <span className={`inline-block px-2 py-1 rounded-full text-xs mt-2 ${
-                    objective.category === 'growth' ? 'bg-green-100 text-green-800' :
-                    objective.category === 'efficiency' ? 'bg-blue-100 text-blue-800' :
-                    objective.category === 'innovation' ? 'bg-purple-100 text-purple-800' :
-                    objective.category === 'customer' ? 'bg-orange-100 text-orange-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span
+                    className={`inline-block px-2 py-1 rounded-full text-xs mt-2 ${
+                      objective.category === 'growth'
+                        ? 'bg-green-100 text-green-800'
+                        : objective.category === 'efficiency'
+                          ? 'bg-blue-100 text-blue-800'
+                          : objective.category === 'innovation'
+                            ? 'bg-purple-100 text-purple-800'
+                            : objective.category === 'customer'
+                              ? 'bg-orange-100 text-orange-800'
+                              : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
                     {objective.category}
                   </span>
                 </div>
               </div>
               <button
-                onClick={(e) => {
+                onClick={e => {
                   e.stopPropagation()
                   onDeleteObjective(objective.id)
                 }}

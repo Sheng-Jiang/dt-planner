@@ -38,7 +38,7 @@ describe('AuthGuard', () => {
       id: '123',
       email: 'test@example.com',
       createdAt: '2024-01-01T00:00:00.000Z',
-      lastLoginAt: '2024-01-01T00:00:00.000Z'
+      lastLoginAt: '2024-01-01T00:00:00.000Z',
     }
 
     render(
@@ -124,7 +124,7 @@ describe('AuthGuard', () => {
       id: '123',
       email: 'test@example.com',
       createdAt: '2024-01-01T00:00:00.000Z',
-      lastLoginAt: '2024-01-01T00:00:00.000Z'
+      lastLoginAt: '2024-01-01T00:00:00.000Z',
     }
 
     rerender(

@@ -2,7 +2,11 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { validateAuthForm, formatValidationErrors, validatePasswordStrength } from '@/lib/errorHandling'
+import {
+  validateAuthForm,
+  formatValidationErrors,
+  validatePasswordStrength,
+} from '@/lib/errorHandling'
 import { ErrorDisplay, FieldError } from '@/components/auth/ErrorDisplay'
 
 interface RegisterFormProps {
@@ -19,29 +23,29 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [errors, setErrors] = useState<{ 
+  const [errors, setErrors] = useState<{
     email?: string
     password?: string
     confirmPassword?: string
-    general?: string 
+    general?: string
   }>({})
   const [isLoading, setIsLoading] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>({
     score: 0,
     feedback: [],
-    isValid: false
+    isValid: false,
   })
-  
+
   const { register } = useAuth()
 
   const checkPasswordStrength = (password: string): PasswordStrength => {
     const feedback = validatePasswordStrength(password)
     const score = Math.max(0, 5 - feedback.length)
-    
+
     return {
       score,
       feedback,
-      isValid: feedback.length === 0
+      isValid: feedback.length === 0,
     }
   }
 
@@ -65,19 +69,19 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const validateForm = () => {
     const validationErrors = validateAuthForm({ email, password, confirmPassword })
     const formattedErrors = formatValidationErrors(validationErrors)
-    
+
     // Add password strength validation
     if (password && !passwordStrength.isValid) {
       formattedErrors.password = 'Password does not meet minimum requirements'
     }
-    
+
     setErrors(formattedErrors)
     return validationErrors.length === 0 && passwordStrength.isValid
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
@@ -89,7 +93,8 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       await register(email, password, confirmPassword)
       onSuccess?.()
     } catch (error: any) {
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.'
+      const errorMessage =
+        error instanceof Error ? error.message : 'Registration failed. Please try again.'
       setErrors({ general: errorMessage })
     } finally {
       setIsLoading(false)
@@ -109,7 +114,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
               errors.email ? 'border-red-300' : 'border-gray-300'
             }`}
@@ -130,7 +135,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             type="password"
             autoComplete="new-password"
             value={password}
-            onChange={(e) => handlePasswordChange(e.target.value)}
+            onChange={e => handlePasswordChange(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
               errors.password ? 'border-red-300' : 'border-gray-300'
             }`}
@@ -138,7 +143,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           />
           <FieldError error={errors.password} />
         </div>
-        
+
         {password && (
           <div className="mt-2">
             <div className="flex items-center space-x-2">
@@ -177,7 +182,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             type="password"
             autoComplete="new-password"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={e => setConfirmPassword(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
               errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
             }`}
@@ -187,9 +192,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         </div>
       </div>
 
-      {errors.general && (
-        <ErrorDisplay error={errors.general} variant="banner" />
-      )}
+      {errors.general && <ErrorDisplay error={errors.general} variant="banner" />}
 
       <div>
         <button

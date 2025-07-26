@@ -16,31 +16,22 @@ export default function LoginPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
-            <Link
-              href="/register"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
+            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
               create a new account
             </Link>
           </p>
         </div>
-        
+
         <LoginForm />
-        
+
         <div className="text-center">
-          <Link
-            href="/forgot-password"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
+          <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
             Forgot your password?
           </Link>
         </div>
-        
+
         <div className="text-center">
-          <Link
-            href="/"
-            className="font-medium text-gray-600 hover:text-gray-500"
-          >
+          <Link href="/" className="font-medium text-gray-600 hover:text-gray-500">
             ← Back to home
           </Link>
         </div>

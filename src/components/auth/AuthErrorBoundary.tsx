@@ -31,10 +31,10 @@ export class AuthErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log the error to console for debugging
     console.error('Authentication Error Boundary caught an error:', error, errorInfo)
-    
+
     // Call the optional error handler
     this.props.onError?.(error, errorInfo)
-    
+
     // In production, you might want to log this to an error reporting service
     if (process.env.NODE_ENV === 'production') {
       // Example: logErrorToService(error, errorInfo)
@@ -72,9 +72,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-                Something went wrong
-              </h2>
+              <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Something went wrong</h2>
               <p className="mt-2 text-sm text-gray-600">
                 We encountered an unexpected error with the authentication system.
               </p>
@@ -102,7 +100,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
                   Try again
                 </button>
                 <button
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => (window.location.href = '/')}
                   className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   Go to home page
@@ -125,7 +123,7 @@ export class AuthErrorBoundary extends Component<Props, State> {
 export function useAuthErrorHandler() {
   const handleError = React.useCallback((error: Error, context?: string) => {
     console.error(`Authentication error${context ? ` in ${context}` : ''}:`, error)
-    
+
     // In production, log to error reporting service
     if (process.env.NODE_ENV === 'production') {
       // Example: logErrorToService(error, { context })
@@ -147,8 +145,8 @@ export function withAuthErrorBoundary<P extends object>(
       <Component {...props} />
     </AuthErrorBoundary>
   )
-  
+
   WrappedComponent.displayName = `withAuthErrorBoundary(${Component.displayName || Component.name})`
-  
+
   return WrappedComponent
 }

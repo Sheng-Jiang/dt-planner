@@ -8,40 +8,26 @@ const protectedRoutes = [
   '/demo-auth', // Existing demo auth page should be protected
 ]
 
-const publicRoutes = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-]
+const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password']
 
 // Routes that should redirect authenticated users away (like login page)
-const authRedirectRoutes = [
-  '/login',
-  '/register',
-]
+const authRedirectRoutes = ['/login', '/register']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const token = request.cookies.get('auth-token')?.value
 
   // Check if the current path is public first (more specific)
-  const isPublicRoute = publicRoutes.some(route => 
-    pathname === route || pathname.startsWith(route)
-  )
+  const isPublicRoute = publicRoutes.some(route => pathname === route || pathname.startsWith(route))
 
   // Check if the current path should redirect authenticated users
-  const isAuthRedirectRoute = authRedirectRoutes.some(route => 
-    pathname === route
-  )
+  const isAuthRedirectRoute = authRedirectRoutes.some(route => pathname === route)
 
   // Check if the current path is protected (only if not public)
-  const isProtectedRoute = !isPublicRoute && (
-    pathname === '/' || // Exact match for root
-    protectedRoutes.some(route => 
-      route !== '/' && pathname.startsWith(route)
-    )
-  )
+  const isProtectedRoute =
+    !isPublicRoute &&
+    (pathname === '/' || // Exact match for root
+      protectedRoutes.some(route => route !== '/' && pathname.startsWith(route)))
 
   // Verify token if it exists
   let isAuthenticated = false
@@ -62,7 +48,7 @@ export function middleware(request: NextRequest) {
   if (isAuthRedirectRoute && isAuthenticated) {
     // Redirect to home page or return URL
     const returnUrl = request.nextUrl.searchParams.get('returnUrl')
-    const redirectUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/dashboard'
+    const redirectUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/'
     return NextResponse.redirect(new URL(redirectUrl, request.url))
   }
 
@@ -89,6 +75,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder files
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

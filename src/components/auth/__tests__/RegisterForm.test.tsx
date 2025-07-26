@@ -25,7 +25,7 @@ describe('RegisterForm', () => {
 
   it('renders registration form fields', () => {
     render(<RegisterForm />)
-    
+
     expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument()
@@ -34,7 +34,7 @@ describe('RegisterForm', () => {
 
   it('shows validation errors for empty fields', async () => {
     render(<RegisterForm />)
-    
+
     const submitButton = screen.getByRole('button', { name: /create account/i })
     fireEvent.click(submitButton)
 
@@ -47,7 +47,7 @@ describe('RegisterForm', () => {
 
   it('shows password strength indicator', async () => {
     render(<RegisterForm />)
-    
+
     const passwordInput = screen.getByLabelText(/^password$/i)
     fireEvent.change(passwordInput, { target: { value: 'weak' } })
 
@@ -59,11 +59,11 @@ describe('RegisterForm', () => {
 
   it('shows password mismatch error', async () => {
     render(<RegisterForm />)
-    
+
     const passwordInput = screen.getByLabelText(/^password$/i)
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
-    
+
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } })
     fireEvent.change(confirmPasswordInput, { target: { value: 'DifferentPassword123!' } })
     fireEvent.click(submitButton)
@@ -75,27 +75,27 @@ describe('RegisterForm', () => {
 
   it('calls register function with valid data', async () => {
     mockRegister.mockResolvedValue(undefined)
-    
+
     render(<RegisterForm />)
-    
+
     const emailInput = screen.getByLabelText(/email address/i)
     const passwordInput = screen.getByLabelText(/^password$/i)
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
-    
+
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
     fireEvent.change(passwordInput, { target: { value: 'Password123!' } })
     fireEvent.change(confirmPasswordInput, { target: { value: 'Password123!' } })
-    
+
     // Wait for password strength validation
     await waitFor(() => {
       expect(screen.getByText('Strong')).toBeInTheDocument()
     })
-    
+
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalledWith('test@example.com', 'Password123!')
+      expect(mockRegister).toHaveBeenCalledWith('test@example.com', 'Password123!', 'Password123!')
     })
   })
 })

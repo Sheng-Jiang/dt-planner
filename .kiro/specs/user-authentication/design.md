@@ -7,13 +7,14 @@ The user authentication system will be implemented using Next.js 14 App Router w
 ## Architecture
 
 ### Authentication Flow
+
 ```mermaid
 sequenceDiagram
     participant User
     participant Client
     participant AuthAPI
     participant Database
-    
+
     User->>Client: Enter credentials
     Client->>AuthAPI: POST /api/auth/login
     AuthAPI->>Database: Verify user credentials
@@ -21,7 +22,7 @@ sequenceDiagram
     AuthAPI-->>Client: JWT token + user info
     Client->>Client: Store token in httpOnly cookie
     Client-->>User: Redirect to dashboard
-    
+
     User->>Client: Access protected route
     Client->>Client: Check token validity
     alt Token valid
@@ -32,6 +33,7 @@ sequenceDiagram
 ```
 
 ### Session Management
+
 - JWT tokens stored in httpOnly cookies for security
 - Token expiration set to 7 days with automatic refresh
 - Server-side token validation on protected routes
@@ -40,6 +42,7 @@ sequenceDiagram
 ## Components and Interfaces
 
 ### Authentication Context
+
 ```typescript
 interface AuthContextType {
   user: User | null
@@ -54,6 +57,7 @@ interface AuthContextType {
 ```
 
 ### User Interface
+
 ```typescript
 interface User {
   id: string
@@ -72,6 +76,7 @@ interface UserRecord extends User {
 ### API Endpoints
 
 #### Authentication Routes
+
 - `POST /api/auth/register` - User registration
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
@@ -80,6 +85,7 @@ interface UserRecord extends User {
 - `POST /api/auth/reset-password` - Reset password with token
 
 #### Middleware
+
 - `middleware.ts` - Route protection and token validation
 - Protected routes: `/dashboard/*`, `/profile/*`
 - Public routes: `/`, `/login`, `/register`, `/forgot-password`, `/reset-password`
@@ -87,12 +93,14 @@ interface UserRecord extends User {
 ### UI Components
 
 #### Authentication Pages
+
 - `src/app/login/page.tsx` - Login form
-- `src/app/register/page.tsx` - Registration form  
+- `src/app/register/page.tsx` - Registration form
 - `src/app/forgot-password/page.tsx` - Password reset request
 - `src/app/reset-password/page.tsx` - Password reset form
 
 #### Shared Components
+
 - `src/components/auth/LoginForm.tsx` - Reusable login form
 - `src/components/auth/RegisterForm.tsx` - Reusable registration form
 - `src/components/auth/AuthGuard.tsx` - Route protection wrapper
@@ -101,6 +109,7 @@ interface UserRecord extends User {
 ## Data Models
 
 ### User Storage
+
 ```json
 {
   "users": [
@@ -118,12 +127,14 @@ interface UserRecord extends User {
 ```
 
 ### Database Operations
+
 - File-based JSON storage in `data/users.json`
 - Atomic write operations to prevent data corruption
 - User lookup by email and ID
 - Password reset token management
 
 ### Security Considerations
+
 - Passwords hashed using bcrypt with salt rounds of 12
 - JWT tokens signed with secure secret key
 - Reset tokens expire after 1 hour
@@ -133,12 +144,14 @@ interface UserRecord extends User {
 ## Error Handling
 
 ### Client-Side Error States
+
 - Network connectivity errors
 - Invalid form submissions
 - Authentication failures
 - Token expiration handling
 
 ### Server-Side Error Responses
+
 ```typescript
 interface AuthError {
   error: string
@@ -148,6 +161,7 @@ interface AuthError {
 ```
 
 ### Error Categories
+
 - `400 Bad Request` - Invalid input data
 - `401 Unauthorized` - Invalid credentials or expired token
 - `404 Not Found` - User not found
@@ -158,24 +172,28 @@ interface AuthError {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Authentication utility functions
 - Password hashing and validation
 - JWT token generation and verification
 - Form validation logic
 
 ### Integration Tests
+
 - API endpoint functionality
 - Database operations
 - Authentication flow end-to-end
 - Error handling scenarios
 
 ### Component Tests
+
 - Form submission handling
 - Error state display
 - Loading state management
 - User interaction flows
 
 ### Security Tests
+
 - Password strength validation
 - Token expiration handling
 - Protected route access
@@ -184,24 +202,28 @@ interface AuthError {
 ## Implementation Phases
 
 ### Phase 1: Core Authentication Infrastructure
+
 - Set up authentication context and providers
 - Implement JWT token utilities
 - Create user database schema and operations
 - Build basic login/logout functionality
 
 ### Phase 2: User Registration and Management
+
 - User registration with validation
 - Password reset functionality
 - User profile management
 - Email verification (future enhancement)
 
 ### Phase 3: UI Integration and Protection
+
 - Authentication forms and pages
 - Route protection middleware
 - User menu and navigation updates
 - Error handling and user feedback
 
 ### Phase 4: Security Hardening and Testing
+
 - Rate limiting implementation
 - Security headers and CSRF protection
 - Comprehensive testing suite
@@ -210,16 +232,19 @@ interface AuthError {
 ## Integration with Existing Application
 
 ### Layout Updates
+
 - Add authentication provider to root layout
 - Include user menu in navigation
 - Handle authentication state in main components
 
 ### Route Protection
+
 - Protect strategy canvas and recommendations
 - Redirect unauthenticated users to login
 - Maintain user session across page refreshes
 
 ### Data Persistence
+
 - Associate user strategies with user accounts
 - Save user preferences and settings
 - Enable strategy sharing and collaboration (future)
@@ -227,6 +252,7 @@ interface AuthError {
 ## Dependencies
 
 ### New Dependencies Required
+
 ```json
 {
   "dependencies": {
@@ -243,6 +269,7 @@ interface AuthError {
 ```
 
 ### Utility Libraries
+
 - `bcryptjs` - Password hashing
 - `jsonwebtoken` - JWT token management
 - `uuid` - Unique identifier generation

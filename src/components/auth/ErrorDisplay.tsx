@@ -14,77 +14,85 @@ interface ErrorDisplayProps {
 /**
  * Reusable error display component for authentication forms
  */
-export function ErrorDisplay({ 
-  error, 
-  className = '', 
-  showRetry = false, 
+export function ErrorDisplay({
+  error,
+  className = '',
+  showRetry = false,
   onRetry,
-  variant = 'inline'
+  variant = 'inline',
 }: ErrorDisplayProps) {
   if (!error) return null
 
   const errorMessage = typeof error === 'string' ? error : error.message
   const errorCode = typeof error === 'object' ? error.code : undefined
-  
+
   // Determine error type for styling
   const isNetwork = typeof error === 'object' && isNetworkError(error)
   const isServer = typeof error === 'object' && isServerError(error)
-  
+
   const getErrorIcon = () => {
     if (isNetwork) {
       return (
         <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+            clipRule="evenodd"
+          />
         </svg>
       )
     }
-    
+
     if (isServer) {
       return (
         <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clipRule="evenodd"
+          />
         </svg>
       )
     }
-    
+
     return (
       <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        <path
+          fillRule="evenodd"
+          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+          clipRule="evenodd"
+        />
       </svg>
     )
   }
 
   const getErrorStyles = () => {
-    const baseStyles = "rounded-md p-4"
-    
+    const baseStyles = 'rounded-md p-4'
+
     if (isNetwork) {
       return `${baseStyles} bg-yellow-50 border border-yellow-200`
     }
-    
+
     if (isServer) {
       return `${baseStyles} bg-red-50 border border-red-200`
     }
-    
+
     return `${baseStyles} bg-red-50 border border-red-200`
   }
 
   const getTextStyles = () => {
-    if (isNetwork) return "text-yellow-800"
-    if (isServer) return "text-red-800"
-    return "text-red-800"
+    if (isNetwork) return 'text-yellow-800'
+    if (isServer) return 'text-red-800'
+    return 'text-red-800'
   }
 
   if (variant === 'banner') {
     return (
       <div className={`${getErrorStyles()} ${className}`}>
         <div className="flex">
-          <div className="flex-shrink-0">
-            {getErrorIcon()}
-          </div>
+          <div className="flex-shrink-0">{getErrorIcon()}</div>
           <div className="ml-3 flex-1">
-            <p className={`text-sm font-medium ${getTextStyles()}`}>
-              {errorMessage}
-            </p>
+            <p className={`text-sm font-medium ${getTextStyles()}`}>{errorMessage}</p>
             {showRetry && onRetry && (
               <div className="mt-2">
                 <button
@@ -109,13 +117,9 @@ export function ErrorDisplay({
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
               {getErrorIcon()}
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mt-4">
-              Error
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mt-4">Error</h3>
             <div className="mt-2 px-7 py-3">
-              <p className="text-sm text-gray-500">
-                {errorMessage}
-              </p>
+              <p className="text-sm text-gray-500">{errorMessage}</p>
             </div>
             <div className="items-center px-4 py-3">
               {showRetry && onRetry && (
@@ -137,13 +141,9 @@ export function ErrorDisplay({
   return (
     <div className={`${getErrorStyles()} ${className}`}>
       <div className="flex">
-        <div className="flex-shrink-0">
-          {getErrorIcon()}
-        </div>
+        <div className="flex-shrink-0">{getErrorIcon()}</div>
         <div className="ml-3">
-          <p className={`text-sm ${getTextStyles()}`}>
-            {errorMessage}
-          </p>
+          <p className={`text-sm ${getTextStyles()}`}>{errorMessage}</p>
           {showRetry && onRetry && (
             <button
               onClick={onRetry}
@@ -169,11 +169,7 @@ interface FieldErrorProps {
 export function FieldError({ error, className = '' }: FieldErrorProps) {
   if (!error) return null
 
-  return (
-    <p className={`mt-2 text-sm text-red-600 ${className}`}>
-      {error}
-    </p>
-  )
+  return <p className={`mt-2 text-sm text-red-600 ${className}`}>{error}</p>
 }
 
 /**
@@ -185,12 +181,20 @@ interface SuccessDisplayProps {
   variant?: 'inline' | 'banner'
 }
 
-export function SuccessDisplay({ message, className = '', variant = 'inline' }: SuccessDisplayProps) {
+export function SuccessDisplay({
+  message,
+  className = '',
+  variant = 'inline',
+}: SuccessDisplayProps) {
   if (!message) return null
 
   const successIcon = (
     <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      <path
+        fillRule="evenodd"
+        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+        clipRule="evenodd"
+      />
     </svg>
   )
 
@@ -198,13 +202,9 @@ export function SuccessDisplay({ message, className = '', variant = 'inline' }: 
     return (
       <div className={`rounded-md bg-green-50 border border-green-200 p-4 ${className}`}>
         <div className="flex">
-          <div className="flex-shrink-0">
-            {successIcon}
-          </div>
+          <div className="flex-shrink-0">{successIcon}</div>
           <div className="ml-3">
-            <p className="text-sm font-medium text-green-800">
-              {message}
-            </p>
+            <p className="text-sm font-medium text-green-800">{message}</p>
           </div>
         </div>
       </div>
@@ -214,13 +214,9 @@ export function SuccessDisplay({ message, className = '', variant = 'inline' }: 
   return (
     <div className={`rounded-md bg-green-50 border border-green-200 p-4 ${className}`}>
       <div className="flex">
-        <div className="flex-shrink-0">
-          {successIcon}
-        </div>
+        <div className="flex-shrink-0">{successIcon}</div>
         <div className="ml-3">
-          <p className="text-sm text-green-800">
-            {message}
-          </p>
+          <p className="text-sm text-green-800">{message}</p>
         </div>
       </div>
     </div>

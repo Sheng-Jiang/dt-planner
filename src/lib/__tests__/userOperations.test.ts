@@ -9,7 +9,7 @@ import {
   deleteUser,
   setResetToken,
   getUserByResetToken,
-  clearResetToken
+  clearResetToken,
 } from '../userOperations'
 
 // Mock the database path to use a test database
@@ -28,7 +28,7 @@ jest.mock('../database', () => {
         return { users: [] }
       }
     }),
-    writeDatabase: jest.fn().mockImplementation(async (data) => {
+    writeDatabase: jest.fn().mockImplementation(async data => {
       const dataDir = path.dirname(TEST_DB_PATH)
       await fs.mkdir(dataDir, { recursive: true })
       await fs.writeFile(TEST_DB_PATH, JSON.stringify(data, null, 2))
@@ -41,7 +41,7 @@ jest.mock('../database', () => {
       } catch {
         await fs.writeFile(TEST_DB_PATH, JSON.stringify({ users: [] }, null, 2))
       }
-    })
+    }),
   }
 })
 
@@ -129,8 +129,8 @@ describe('User Operations', () => {
       const passwordHash = 'hashedpassword123'
 
       const user = await createUser(email, passwordHash)
-      const updatedUser = await updateUser(user.id, { 
-        lastLoginAt: '2024-01-01T00:00:00.000Z' 
+      const updatedUser = await updateUser(user.id, {
+        lastLoginAt: '2024-01-01T00:00:00.000Z',
       })
 
       expect(updatedUser).not.toBeNull()
@@ -181,7 +181,7 @@ describe('User Operations', () => {
 
       await createUser(email, passwordHash)
       await setResetToken(email, token, expiry)
-      
+
       const success = await clearResetToken(email)
       expect(success).toBe(true)
 

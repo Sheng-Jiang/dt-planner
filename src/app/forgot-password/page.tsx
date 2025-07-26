@@ -20,7 +20,7 @@ export default function ForgotPasswordPage() {
   const validateForm = () => {
     const validationErrors = validateAuthForm({ email })
     const formattedErrors = formatValidationErrors(validationErrors)
-    
+
     setFieldErrors(formattedErrors)
     return validationErrors.length === 0
   }
@@ -52,17 +52,12 @@ export default function ForgotPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-              Check your email
-            </h2>
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Check your email</h2>
             <p className="mt-2 text-sm text-gray-600">
-              If the email exists in our system, we've sent you a password reset link.
+              If the email exists in our system, we&apos;ve sent you a password reset link.
             </p>
             <div className="mt-6">
-              <Link
-                href="/login"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
+              <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
                 ← Back to sign in
               </Link>
             </div>
@@ -80,10 +75,10 @@ export default function ForgotPasswordPage() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="email" className="sr-only">
@@ -96,7 +91,7 @@ export default function ForgotPasswordPage() {
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               className={`appearance-none rounded-md relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm ${
                 fieldErrors.email ? 'border-red-300' : 'border-gray-300'
               }`}
@@ -105,9 +100,7 @@ export default function ForgotPasswordPage() {
             <FieldError error={fieldErrors.email} />
           </div>
 
-          {error && (
-            <ErrorDisplay error={error} variant="banner" />
-          )}
+          {error && <ErrorDisplay error={error} variant="banner" />}
 
           <div>
             <button
@@ -119,19 +112,13 @@ export default function ForgotPasswordPage() {
             </button>
           </div>
         </form>
-        
+
         <div className="text-center space-y-2">
-          <Link
-            href="/login"
-            className="font-medium text-blue-600 hover:text-blue-500"
-          >
+          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
             ← Back to sign in
           </Link>
           <br />
-          <Link
-            href="/"
-            className="font-medium text-gray-600 hover:text-gray-500"
-          >
+          <Link href="/" className="font-medium text-gray-600 hover:text-gray-500">
             Back to home
           </Link>
         </div>

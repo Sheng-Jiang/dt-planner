@@ -21,11 +21,19 @@ describe('Authentication API Endpoints', () => {
   let testUserId: string
   let authToken: string
 
-  afterEach(async () => {
+  beforeAll(async () => {
     // Clean up test user if created
-    if (testUserId) {
-      await deleteUser(testUserId)
-      testUserId = ''
+    const user = await getUserByEmail(testEmail)
+    if (user) {
+      await deleteUser(user.id)
+    }
+  })
+
+  afterAll(async () => {
+    // Clean up test user if created
+    const user = await getUserByEmail(testEmail)
+    if (user) {
+      await deleteUser(user.id)
     }
   })
 
@@ -36,11 +44,11 @@ describe('Authentication API Endpoints', () => {
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await registerPOST(request)
@@ -50,7 +58,7 @@ describe('Authentication API Endpoints', () => {
       expect(data.message).toBe('User created successfully')
       expect(data.user.email).toBe(testEmail)
       expect(data.user.id).toBeDefined()
-      
+
       testUserId = data.user.id
     })
 
@@ -60,11 +68,11 @@ describe('Authentication API Endpoints', () => {
         body: JSON.stringify({
           email: 'invalid-email',
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await registerPOST(request)
@@ -80,11 +88,11 @@ describe('Authentication API Endpoints', () => {
         body: JSON.stringify({
           email: testEmail,
           password: '123',
-          confirmPassword: '123'
+          confirmPassword: '123',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await registerPOST(request)
@@ -100,11 +108,11 @@ describe('Authentication API Endpoints', () => {
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: 'differentpassword'
+          confirmPassword: 'differentpassword',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await registerPOST(request)
@@ -117,21 +125,30 @@ describe('Authentication API Endpoints', () => {
 
   describe('POST /api/auth/login', () => {
     beforeEach(async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Create a test user first
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const registerResponse = await registerPOST(registerRequest)
       const registerData = await registerResponse.json()
+
+      expect(registerResponse.status).toBe(201)
+      expect(registerData.user).toBeDefined()
       testUserId = registerData.user.id
     })
 
@@ -140,11 +157,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: testPassword
+          password: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await loginPOST(request)
@@ -153,7 +170,7 @@ describe('Authentication API Endpoints', () => {
       expect(response.status).toBe(200)
       expect(data.message).toBe('Login successful')
       expect(data.user.email).toBe(testEmail)
-      
+
       // Check if auth token cookie is set
       const cookies = response.headers.get('set-cookie')
       expect(cookies).toContain('auth-token=')
@@ -164,11 +181,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: 'wrongpassword'
+          password: 'wrongpassword',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await loginPOST(request)
@@ -182,12 +199,12 @@ describe('Authentication API Endpoints', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({
-          email: testEmail
+          email: testEmail,
           // password missing
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await loginPOST(request)
@@ -201,7 +218,7 @@ describe('Authentication API Endpoints', () => {
   describe('POST /api/auth/logout', () => {
     it('should logout successfully', async () => {
       const request = new NextRequest('http://localhost:3000/api/auth/logout', {
-        method: 'POST'
+        method: 'POST',
       })
 
       const response = await logoutPOST(request)
@@ -209,7 +226,7 @@ describe('Authentication API Endpoints', () => {
 
       expect(response.status).toBe(200)
       expect(data.message).toBe('Successfully logged out')
-      
+
       // Check if auth token cookie is cleared
       const cookies = response.headers.get('set-cookie')
       expect(cookies).toContain('auth-token=;')
@@ -218,21 +235,30 @@ describe('Authentication API Endpoints', () => {
 
   describe('GET /api/auth/me', () => {
     beforeEach(async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Create and login a test user first
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const registerResponse = await registerPOST(registerRequest)
       const registerData = await registerResponse.json()
+
+      expect(registerResponse.status).toBe(201)
+      expect(registerData.user).toBeDefined()
       testUserId = registerData.user.id
 
       // Login to get auth token
@@ -240,11 +266,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: testPassword
+          password: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const loginResponse = await loginPOST(loginRequest)
@@ -257,8 +283,8 @@ describe('Authentication API Endpoints', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/me', {
         method: 'GET',
         headers: {
-          Cookie: `auth-token=${authToken}`
-        }
+          Cookie: `auth-token=${authToken}`,
+        },
       })
 
       const response = await meGET(request)
@@ -271,7 +297,7 @@ describe('Authentication API Endpoints', () => {
 
     it('should reject request without token', async () => {
       const request = new NextRequest('http://localhost:3000/api/auth/me', {
-        method: 'GET'
+        method: 'GET',
       })
 
       const response = await meGET(request)
@@ -285,8 +311,8 @@ describe('Authentication API Endpoints', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/me', {
         method: 'GET',
         headers: {
-          Cookie: 'auth-token=invalid-token'
-        }
+          Cookie: 'auth-token=invalid-token',
+        },
       })
 
       const response = await meGET(request)
@@ -299,17 +325,23 @@ describe('Authentication API Endpoints', () => {
 
   describe('POST /api/auth/forgot-password', () => {
     beforeEach(async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Create a test user first
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const registerResponse = await registerPOST(registerRequest)
@@ -317,15 +349,22 @@ describe('Authentication API Endpoints', () => {
       testUserId = registerData.user.id
     })
 
+    afterEach(async () => {
+      // Clean up test user
+      if (testUserId) {
+        await deleteUser(testUserId)
+      }
+    })
+
     it('should handle forgot password request for existing user', async () => {
       const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
         method: 'POST',
         body: JSON.stringify({
-          email: testEmail
+          email: testEmail,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await forgotPasswordPOST(request)
@@ -343,11 +382,11 @@ describe('Authentication API Endpoints', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
         method: 'POST',
         body: JSON.stringify({
-          email: 'nonexistent@example.com'
+          email: 'nonexistent@example.com',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await forgotPasswordPOST(request)
@@ -361,11 +400,11 @@ describe('Authentication API Endpoints', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
         method: 'POST',
         body: JSON.stringify({
-          email: 'invalid-email'
+          email: 'invalid-email',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await forgotPasswordPOST(request)
@@ -380,8 +419,8 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({}),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await forgotPasswordPOST(request)
@@ -396,17 +435,23 @@ describe('Authentication API Endpoints', () => {
     let resetToken: string
 
     beforeEach(async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Create a test user first
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const registerResponse = await registerPOST(registerRequest)
@@ -425,11 +470,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           token: resetToken,
-          newPassword: newPassword
+          newPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await resetPasswordPOST(request)
@@ -443,11 +488,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: newPassword
+          password: newPassword,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const loginResponse = await loginPOST(loginRequest)
@@ -459,11 +504,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           token: 'invalid-token',
-          newPassword: 'newpassword123'
+          newPassword: 'newpassword123',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await resetPasswordPOST(request)
@@ -478,11 +523,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           token: resetToken,
-          newPassword: '123'
+          newPassword: '123',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await resetPasswordPOST(request)
@@ -496,11 +541,11 @@ describe('Authentication API Endpoints', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({
-          newPassword: 'newpassword123'
+          newPassword: 'newpassword123',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await resetPasswordPOST(request)
@@ -514,11 +559,11 @@ describe('Authentication API Endpoints', () => {
       const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
         method: 'POST',
         body: JSON.stringify({
-          token: resetToken
+          token: resetToken,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await resetPasswordPOST(request)
@@ -538,11 +583,11 @@ describe('Authentication API Endpoints', () => {
         method: 'POST',
         body: JSON.stringify({
           token: expiredToken,
-          newPassword: 'newpassword123'
+          newPassword: 'newpassword123',
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       })
 
       const response = await resetPasswordPOST(request)
@@ -551,4 +596,12 @@ describe('Authentication API Endpoints', () => {
       expect(response.status).toBe(400)
       expect(data.message).toBe('Reset link is invalid or expired')
     })
-  })})
+
+    afterEach(async () => {
+      // Clean up test user
+      if (testUserId) {
+        await deleteUser(testUserId)
+      }
+    })
+  })
+})

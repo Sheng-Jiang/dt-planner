@@ -13,6 +13,7 @@ A strategic planning web application that helps companies visualize their digita
 ## Target Users
 
 Companies and strategic planners looking to:
+
 - Visualize their digital transformation strategy
 - Organize strategic objectives systematically
 - Receive tailored technology platform recommendations

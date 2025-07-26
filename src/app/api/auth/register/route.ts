@@ -11,7 +11,11 @@ export async function POST(request: NextRequest) {
     // Validate required fields
     if (!email || !password || !confirmPassword) {
       return NextResponse.json(
-        createErrorResponse('MISSING_REQUIRED_FIELDS', 'Email, password, and confirm password are required', 400),
+        createErrorResponse(
+          'MISSING_REQUIRED_FIELDS',
+          'Email, password, and confirm password are required',
+          400
+        ),
         { status: 400 }
       )
     }
@@ -47,20 +51,19 @@ export async function POST(request: NextRequest) {
     const user = await createUser(email.toLowerCase().trim(), passwordHash)
 
     return NextResponse.json(
-      { 
+      {
         message: 'User created successfully',
         user: {
           id: user.id,
           email: user.email,
-          createdAt: user.createdAt
-        }
+          createdAt: user.createdAt,
+        },
       },
       { status: 201 }
     )
-
   } catch (error) {
     console.error('Registration error:', error)
-    
+
     if (error instanceof Error && error.message === 'User with this email already exists') {
       return NextResponse.json(
         createErrorResponse('EMAIL_EXISTS', 'Email already registered', 409),

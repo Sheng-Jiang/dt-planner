@@ -18,7 +18,7 @@ async function ensureDatabase(): Promise<void> {
   try {
     const dataDir = path.dirname(DB_PATH)
     await fs.mkdir(dataDir, { recursive: true })
-    
+
     // Check if database file exists
     try {
       await fs.access(DB_PATH)
@@ -52,10 +52,10 @@ async function writeDatabase(data: Database): Promise<void> {
   try {
     await ensureDatabase()
     const tempPath = `${DB_PATH}.tmp`
-    
+
     // Write to temporary file first
     await fs.writeFile(tempPath, JSON.stringify(data, null, 2))
-    
+
     // Atomically move temp file to actual database file
     await fs.rename(tempPath, DB_PATH)
   } catch (error) {

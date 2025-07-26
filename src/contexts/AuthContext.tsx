@@ -71,7 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Error already handled above
         throw err
       }
-      
+
       // Handle network errors
       const authError = mapApiError(err)
       const userMessage = getAuthErrorMessage(authError.code, authError.message)
@@ -102,7 +102,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const register = async (email: string, password: string, confirmPassword: string): Promise<void> => {
+  const register = async (
+    email: string,
+    password: string,
+    confirmPassword: string
+  ): Promise<void> => {
     try {
       setIsLoading(true)
       setError(null)
@@ -131,7 +135,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Error already handled above
         throw err
       }
-      
+
       // Handle network errors
       const authError = mapApiError(err)
       const userMessage = getAuthErrorMessage(authError.code, authError.message)
@@ -167,7 +171,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Error already handled above
         throw err
       }
-      
+
       // Handle network errors
       const authError = mapApiError(err)
       const userMessage = getAuthErrorMessage(authError.code, authError.message)
@@ -203,7 +207,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Error already handled above
         throw err
       }
-      
+
       // Handle network errors
       const authError = mapApiError(err)
       const userMessage = getAuthErrorMessage(authError.code, authError.message)
@@ -225,11 +229,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     error,
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth(): AuthContextType {

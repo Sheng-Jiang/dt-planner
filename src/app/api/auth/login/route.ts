@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       id: userRecord.id,
       email: userRecord.email,
       createdAt: userRecord.createdAt,
-      lastLoginAt: new Date().toISOString()
+      lastLoginAt: new Date().toISOString(),
     }
     const token = generateJWTToken(user)
 
@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
         user: {
           id: user.id,
           email: user.email,
-          lastLoginAt: user.lastLoginAt
-        }
+          lastLoginAt: user.lastLoginAt,
+        },
       },
       { status: 200 }
     )
@@ -73,14 +73,13 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
-      path: '/'
+      path: '/',
     })
 
     return response
-
   } catch (error) {
     console.error('Login error:', error)
-    
+
     return NextResponse.json(
       createErrorResponse('SERVER_ERROR', 'An error occurred during login', 500),
       { status: 500 }

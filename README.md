@@ -5,14 +5,16 @@ A strategic planning tool for digital transformation initiatives. This web appli
 ## Features
 
 ### Strategy Canvas
+
 - **Interactive Canvas**: Drag and drop interface for positioning company objectives
 - **Pre-defined Objectives**: Ready-to-use strategic objectives with icons and categories
 - **Visual Organization**: Color-coded categories (Growth, Efficiency, Innovation, Customer, Operations)
 - **Real-time Summary**: Live statistics showing objective distribution
 
 ### Digital Transformation Recommendations
+
 - **Infrastructure Platform**: Cloud-first architecture and security framework recommendations
-- **Data & Analytics Platform**: Data lake, warehouse, and AI/ML pipeline suggestions  
+- **Data & Analytics Platform**: Data lake, warehouse, and AI/ML pipeline suggestions
 - **Application Platform**: Mobile-first applications and API gateway recommendations
 - **Implementation Roadmap**: Phased approach with timeline estimates
 
@@ -26,11 +28,13 @@ A strategic planning tool for digital transformation initiatives. This web appli
 ## Getting Started
 
 Due to npm cache permission issues, you may need to run:
+
 ```bash
 sudo chown -R $(id -u):$(id -g) ~/.npm
 ```
 
 Then install dependencies and start the development server:
+
 ```bash
 npm install
 npm run dev

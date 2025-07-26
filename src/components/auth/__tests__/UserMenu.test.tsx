@@ -41,7 +41,7 @@ describe('UserMenu', () => {
     id: '123',
     email: 'test@example.com',
     createdAt: '2024-01-01T00:00:00.000Z',
-    lastLoginAt: '2024-01-01T00:00:00.000Z'
+    lastLoginAt: '2024-01-01T00:00:00.000Z',
   }
 
   it('should render user email and menu trigger when user is provided', () => {
@@ -140,7 +140,7 @@ describe('UserMenu', () => {
   it('should show user initials in avatar', () => {
     const userWithLongEmail = {
       ...mockUser,
-      email: 'very.long.email.address@example.com'
+      email: 'very.long.email.address@example.com',
     }
     mockAuthContext.user = userWithLongEmail
 

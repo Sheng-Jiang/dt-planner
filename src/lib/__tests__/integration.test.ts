@@ -22,26 +22,39 @@ describe('Authentication Integration Tests', () => {
   let testUserId: string
   let authToken: string
 
-  afterEach(async () => {
+  beforeAll(async () => {
     // Clean up test user if created
-    if (testUserId) {
-      await deleteUser(testUserId)
-      testUserId = ''
-      authToken = ''
+    const user = await getUserByEmail(testEmail)
+    if (user) {
+      await deleteUser(user.id)
+    }
+  })
+
+  afterAll(async () => {
+    // Clean up test user if created
+    const user = await getUserByEmail(testEmail)
+    if (user) {
+      await deleteUser(user.id)
     }
   })
 
   describe('Complete Registration Flow', () => {
     it('should complete full registration process', async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Step 1: Register user
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const registerResponse = await registerPOST(registerRequest)
@@ -50,7 +63,7 @@ describe('Authentication Integration Tests', () => {
       expect(registerResponse.status).toBe(201)
       expect(registerData.user.email).toBe(testEmail)
       expect(registerData.user.id).toBeDefined()
-      
+
       testUserId = registerData.user.id
 
       // Step 2: Verify user exists in database
@@ -67,19 +80,28 @@ describe('Authentication Integration Tests', () => {
     })
 
     it('should prevent duplicate registrations', async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Register first user
       const firstRegisterRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const firstResponse = await registerPOST(firstRegisterRequest)
       const firstData = await firstResponse.json()
+
+      expect(firstResponse.status).toBe(201)
+      expect(firstData.user).toBeDefined()
       testUserId = firstData.user.id
 
       // Attempt to register same email again
@@ -88,9 +110,9 @@ describe('Authentication Integration Tests', () => {
         body: JSON.stringify({
           email: testEmail,
           password: 'DifferentPassword123!',
-          confirmPassword: 'DifferentPassword123!'
+          confirmPassword: 'DifferentPassword123!',
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const secondResponse = await registerPOST(secondRegisterRequest)
@@ -103,19 +125,28 @@ describe('Authentication Integration Tests', () => {
 
   describe('Complete Login Flow', () => {
     beforeEach(async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Create test user
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const registerResponse = await registerPOST(registerRequest)
       const registerData = await registerResponse.json()
+
+      expect(registerResponse.status).toBe(201)
+      expect(registerData.user).toBeDefined()
       testUserId = registerData.user.id
     })
 
@@ -125,9 +156,9 @@ describe('Authentication Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: testPassword
+          password: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const loginResponse = await loginPOST(loginRequest)
@@ -140,7 +171,7 @@ describe('Authentication Integration Tests', () => {
       // Step 2: Extract auth token from cookie
       const cookies = loginResponse.headers.get('set-cookie')
       expect(cookies).toContain('auth-token=')
-      
+
       const tokenMatch = cookies?.match(/auth-token=([^;]+)/)
       authToken = tokenMatch ? tokenMatch[1] : ''
       expect(authToken).toBeTruthy()
@@ -148,7 +179,7 @@ describe('Authentication Integration Tests', () => {
       // Step 3: Use token to access protected endpoint
       const meRequest = new NextRequest('http://localhost:3000/api/auth/me', {
         method: 'GET',
-        headers: { Cookie: `auth-token=${authToken}` }
+        headers: { Cookie: `auth-token=${authToken}` },
       })
 
       const meResponse = await meGET(meRequest)
@@ -165,9 +196,9 @@ describe('Authentication Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: 'WrongPassword123!'
+          password: 'WrongPassword123!',
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const wrongPasswordResponse = await loginPOST(wrongPasswordRequest)
@@ -178,9 +209,9 @@ describe('Authentication Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           email: 'nonexistent@example.com',
-          password: testPassword
+          password: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const nonExistentResponse = await loginPOST(nonExistentRequest)
@@ -190,29 +221,41 @@ describe('Authentication Integration Tests', () => {
 
   describe('Complete Password Reset Flow', () => {
     beforeEach(async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Create test user
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const registerResponse = await registerPOST(registerRequest)
       const registerData = await registerResponse.json()
+
+      expect(registerResponse.status).toBe(201)
+      expect(registerData.user).toBeDefined()
       testUserId = registerData.user.id
     })
 
     it('should complete full password reset process', async () => {
       // Step 1: Request password reset
-      const forgotPasswordRequest = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
-        method: 'POST',
-        body: JSON.stringify({ email: testEmail }),
-        headers: { 'Content-Type': 'application/json' }
-      })
+      const forgotPasswordRequest = new NextRequest(
+        'http://localhost:3000/api/auth/forgot-password',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: testEmail }),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
 
       const forgotPasswordResponse = await forgotPasswordPOST(forgotPasswordRequest)
       expect(forgotPasswordResponse.status).toBe(200)
@@ -220,7 +263,7 @@ describe('Authentication Integration Tests', () => {
       // Step 2: Verify reset token was set (simulate getting token from email)
       const userRecord = await getUserByEmail(testEmail)
       expect(userRecord).not.toBeNull()
-      
+
       // In a real scenario, we'd get the token from the email
       // For testing, we need to access the database directly to get the token
       const { getUserRecordByEmail } = await import('@/lib/userOperations')
@@ -232,14 +275,17 @@ describe('Authentication Integration Tests', () => {
 
       // Step 3: Reset password with token
       const newPassword = 'NewPassword123!'
-      const resetPasswordRequest = new NextRequest('http://localhost:3000/api/auth/reset-password', {
-        method: 'POST',
-        body: JSON.stringify({
-          token: resetToken,
-          newPassword: newPassword
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      })
+      const resetPasswordRequest = new NextRequest(
+        'http://localhost:3000/api/auth/reset-password',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            token: resetToken,
+            newPassword,
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
 
       const resetPasswordResponse = await resetPasswordPOST(resetPasswordRequest)
       const resetPasswordData = await resetPasswordResponse.json()
@@ -252,9 +298,9 @@ describe('Authentication Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: testPassword
+          password: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const oldPasswordResponse = await loginPOST(oldPasswordLoginRequest)
@@ -265,9 +311,9 @@ describe('Authentication Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: newPassword
+          password: newPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const newPasswordResponse = await loginPOST(newPasswordLoginRequest)
@@ -281,11 +327,14 @@ describe('Authentication Integration Tests', () => {
 
     it('should handle expired reset tokens', async () => {
       // Request password reset
-      const forgotPasswordRequest = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
-        method: 'POST',
-        body: JSON.stringify({ email: testEmail }),
-        headers: { 'Content-Type': 'application/json' }
-      })
+      const forgotPasswordRequest = new NextRequest(
+        'http://localhost:3000/api/auth/forgot-password',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email: testEmail }),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
 
       await forgotPasswordPOST(forgotPasswordRequest)
 
@@ -295,14 +344,17 @@ describe('Authentication Integration Tests', () => {
       await setResetToken(testEmail, 'expired-token', expiredDate)
 
       // Try to reset password with expired token
-      const resetPasswordRequest = new NextRequest('http://localhost:3000/api/auth/reset-password', {
-        method: 'POST',
-        body: JSON.stringify({
-          token: 'expired-token',
-          newPassword: 'NewPassword123!'
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      })
+      const resetPasswordRequest = new NextRequest(
+        'http://localhost:3000/api/auth/reset-password',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            token: 'expired-token',
+            newPassword: 'NewPassword123!',
+          }),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
 
       const resetPasswordResponse = await resetPasswordPOST(resetPasswordRequest)
       expect(resetPasswordResponse.status).toBe(400)
@@ -314,19 +366,28 @@ describe('Authentication Integration Tests', () => {
 
   describe('Session Management Flow', () => {
     beforeEach(async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
+
       // Create and login test user
       const registerRequest = new NextRequest('http://localhost:3000/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
           password: testPassword,
-          confirmPassword: testPassword
+          confirmPassword: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const registerResponse = await registerPOST(registerRequest)
       const registerData = await registerResponse.json()
+
+      expect(registerResponse.status).toBe(201)
+      expect(registerData.user).toBeDefined()
       testUserId = registerData.user.id
 
       // Login to get token
@@ -334,9 +395,9 @@ describe('Authentication Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: testPassword
+          password: testPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const loginResponse = await loginPOST(loginRequest)
@@ -349,7 +410,7 @@ describe('Authentication Integration Tests', () => {
       // Step 1: Verify authenticated access works
       const meRequest = new NextRequest('http://localhost:3000/api/auth/me', {
         method: 'GET',
-        headers: { Cookie: `auth-token=${authToken}` }
+        headers: { Cookie: `auth-token=${authToken}` },
       })
 
       const meResponse = await meGET(meRequest)
@@ -358,7 +419,7 @@ describe('Authentication Integration Tests', () => {
       // Step 2: Logout
       const logoutRequest = new NextRequest('http://localhost:3000/api/auth/logout', {
         method: 'POST',
-        headers: { Cookie: `auth-token=${authToken}` }
+        headers: { Cookie: `auth-token=${authToken}` },
       })
 
       const logoutResponse = await logoutPOST(logoutRequest)
@@ -371,7 +432,7 @@ describe('Authentication Integration Tests', () => {
       // Step 3: Verify logout cleared the cookie (token itself is still valid but cookie is cleared)
       // In a real browser, the cookie would be gone, but in tests we need to simulate this
       const meAfterLogoutRequest = new NextRequest('http://localhost:3000/api/auth/me', {
-        method: 'GET'
+        method: 'GET',
         // No cookie header - simulating cleared cookie
       })
 
@@ -382,19 +443,24 @@ describe('Authentication Integration Tests', () => {
 
   describe('Password Security Integration', () => {
     it('should properly hash and verify passwords throughout the flow', async () => {
+      // Clean up any existing user first
+      const existingUser = await getUserByEmail(testEmail)
+      if (existingUser) {
+        await deleteUser(existingUser.id)
+      }
       const plainPassword = 'TestPassword123!'
-      
+
       // Test direct password hashing
       const hash1 = await hashPassword(plainPassword)
       const hash2 = await hashPassword(plainPassword)
-      
+
       // Hashes should be different (due to salt)
       expect(hash1).not.toBe(hash2)
-      
+
       // Both should verify correctly
       expect(await verifyPassword(plainPassword, hash1)).toBe(true)
       expect(await verifyPassword(plainPassword, hash2)).toBe(true)
-      
+
       // Wrong password should not verify
       expect(await verifyPassword('WrongPassword', hash1)).toBe(false)
 
@@ -404,9 +470,9 @@ describe('Authentication Integration Tests', () => {
         body: JSON.stringify({
           email: testEmail,
           password: plainPassword,
-          confirmPassword: plainPassword
+          confirmPassword: plainPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const registerResponse = await registerPOST(registerRequest)
@@ -418,13 +484,13 @@ describe('Authentication Integration Tests', () => {
         method: 'POST',
         body: JSON.stringify({
           email: testEmail,
-          password: plainPassword
+          password: plainPassword,
         }),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       })
 
       const loginResponse = await loginPOST(loginRequest)
       expect(loginResponse.status).toBe(200)
-    })
+    }, 10000) // 10 second timeout
   })
 })

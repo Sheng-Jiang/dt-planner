@@ -39,15 +39,14 @@ export async function GET(request: NextRequest) {
           id: user.id,
           email: user.email,
           createdAt: user.createdAt,
-          lastLoginAt: user.lastLoginAt
-        }
+          lastLoginAt: user.lastLoginAt,
+        },
       },
       { status: 200 }
     )
-
   } catch (error) {
     console.error('Get current user error:', error)
-    
+
     return NextResponse.json(
       createErrorResponse('SERVER_ERROR', 'An error occurred while fetching user data', 500),
       { status: 500 }

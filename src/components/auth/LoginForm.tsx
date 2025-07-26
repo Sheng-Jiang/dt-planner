@@ -16,31 +16,31 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  
+
   const { login } = useAuth()
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {}
-    
+
     // Email validation
     if (!email.trim()) {
       newErrors.email = 'Email is required'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email = 'Please enter a valid email address'
     }
-    
+
     // Password validation (only check if required for login)
     if (!password) {
       newErrors.password = 'Password is required'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
@@ -76,7 +76,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
               errors.email ? 'border-red-300' : 'border-gray-300'
             }`}
@@ -97,7 +97,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             type="password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
               errors.password ? 'border-red-300' : 'border-gray-300'
             }`}
@@ -107,9 +107,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         </div>
       </div>
 
-      {errors.general && (
-        <ErrorDisplay error={errors.general} variant="banner" />
-      )}
+      {errors.general && <ErrorDisplay error={errors.general} variant="banner" />}
 
       <div>
         <button

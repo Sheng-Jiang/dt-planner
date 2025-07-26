@@ -8,7 +8,7 @@ import {
   isNetworkError,
   isServerError,
   isClientError,
-  createErrorResponse
+  createErrorResponse,
 } from '../errorHandling'
 
 describe('Error Handling Utilities', () => {
@@ -28,10 +28,10 @@ describe('Error Handling Utilities', () => {
           data: {
             error: 'INVALID_CREDENTIALS',
             message: 'Invalid email or password',
-            statusCode: 401
+            statusCode: 401,
           },
-          status: 401
-        }
+          status: 401,
+        },
       }
       const result = mapApiError(httpError)
 
@@ -90,9 +90,9 @@ describe('Error Handling Utilities', () => {
       expect(errors).toContainEqual({ field: 'email', message: 'Email is required' })
 
       const invalidEmailErrors = validateAuthForm({ email: 'invalid-email' })
-      expect(invalidEmailErrors).toContainEqual({ 
-        field: 'email', 
-        message: 'Please enter a valid email address' 
+      expect(invalidEmailErrors).toContainEqual({
+        field: 'email',
+        message: 'Please enter a valid email address',
       })
 
       const validEmailErrors = validateAuthForm({ email: 'test@example.com' })
@@ -111,36 +111,36 @@ describe('Error Handling Utilities', () => {
     })
 
     it('should validate confirm password field correctly', () => {
-      const errors = validateAuthForm({ 
-        password: 'password123', 
-        confirmPassword: '' 
+      const errors = validateAuthForm({
+        password: 'password123',
+        confirmPassword: '',
       })
-      expect(errors).toContainEqual({ 
-        field: 'confirmPassword', 
-        message: 'Please confirm your password' 
-      })
-
-      const mismatchErrors = validateAuthForm({ 
-        password: 'password123', 
-        confirmPassword: 'different123' 
-      })
-      expect(mismatchErrors).toContainEqual({ 
-        field: 'confirmPassword', 
-        message: 'Passwords do not match' 
+      expect(errors).toContainEqual({
+        field: 'confirmPassword',
+        message: 'Please confirm your password',
       })
 
-      const matchingErrors = validateAuthForm({ 
-        password: 'StrongPass123!', 
-        confirmPassword: 'StrongPass123!' 
+      const mismatchErrors = validateAuthForm({
+        password: 'password123',
+        confirmPassword: 'different123',
+      })
+      expect(mismatchErrors).toContainEqual({
+        field: 'confirmPassword',
+        message: 'Passwords do not match',
+      })
+
+      const matchingErrors = validateAuthForm({
+        password: 'StrongPass123!',
+        confirmPassword: 'StrongPass123!',
       })
       expect(matchingErrors.filter(e => e.field === 'confirmPassword')).toHaveLength(0)
     })
 
     it('should validate current password field correctly', () => {
       const errors = validateAuthForm({ currentPassword: '' })
-      expect(errors).toContainEqual({ 
-        field: 'currentPassword', 
-        message: 'Current password is required' 
+      expect(errors).toContainEqual({
+        field: 'currentPassword',
+        message: 'Current password is required',
       })
 
       const validErrors = validateAuthForm({ currentPassword: 'currentpass' })
@@ -153,7 +153,7 @@ describe('Error Handling Utilities', () => {
       expect(isValidEmailFormat('test@example.com')).toBe(true)
       expect(isValidEmailFormat('user@domain.co.uk')).toBe(true)
       expect(isValidEmailFormat('user.name+tag@example.com')).toBe(true)
-      
+
       expect(isValidEmailFormat('invalid-email')).toBe(false)
       expect(isValidEmailFormat('test@')).toBe(false)
       expect(isValidEmailFormat('@example.com')).toBe(false)
@@ -193,13 +193,13 @@ describe('Error Handling Utilities', () => {
     it('should format validation errors correctly', () => {
       const errors = [
         { field: 'email', message: 'Email is required' },
-        { field: 'password', message: 'Password is too weak' }
+        { field: 'password', message: 'Password is too weak' },
       ]
 
       const formatted = formatValidationErrors(errors)
       expect(formatted).toEqual({
         email: 'Email is required',
-        password: 'Password is too weak'
+        password: 'Password is too weak',
       })
     })
   })
@@ -214,7 +214,7 @@ describe('Error Handling Utilities', () => {
 
     it('should identify server errors', () => {
       expect(isServerError({ response: { status: 500 } })).toBe(true)
-      expect(isServerError({ statusCode: 503 } )).toBe(true)
+      expect(isServerError({ statusCode: 503 })).toBe(true)
       expect(isServerError({ code: 'SERVER_ERROR' })).toBe(true)
       expect(isServerError({ response: { status: 400 } })).toBe(false)
     })

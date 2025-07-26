@@ -23,8 +23,9 @@ export function mapApiError(error: any): AuthError {
     if (error.message.includes('fetch')) {
       return {
         code: 'NETWORK_ERROR',
-        message: 'Unable to connect to the server. Please check your internet connection and try again.',
-        statusCode: 0
+        message:
+          'Unable to connect to the server. Please check your internet connection and try again.',
+        statusCode: 0,
       }
     }
   }
@@ -35,7 +36,7 @@ export function mapApiError(error: any): AuthError {
     return {
       code: errorCode || 'UNKNOWN_ERROR',
       message: message || 'An unexpected error occurred',
-      statusCode: statusCode || error.response.status
+      statusCode: statusCode || error.response.status,
     }
   }
 
@@ -44,7 +45,7 @@ export function mapApiError(error: any): AuthError {
     return {
       code: 'CLIENT_ERROR',
       message: error.message,
-      statusCode: 400
+      statusCode: 400,
     }
   }
 
@@ -52,7 +53,7 @@ export function mapApiError(error: any): AuthError {
   return {
     code: 'UNKNOWN_ERROR',
     message: 'An unexpected error occurred. Please try again.',
-    statusCode: 500
+    statusCode: 500,
   }
 }
 
@@ -62,42 +63,48 @@ export function mapApiError(error: any): AuthError {
 export function getAuthErrorMessage(errorCode: string, defaultMessage?: string): string {
   const errorMessages: Record<string, string> = {
     // Login errors
-    'INVALID_CREDENTIALS': 'Invalid email or password. Please check your credentials and try again.',
-    'MISSING_CREDENTIALS': 'Please enter both email and password.',
-    'ACCOUNT_LOCKED': 'Your account has been temporarily locked. Please try again later.',
-    'ACCOUNT_DISABLED': 'Your account has been disabled. Please contact support.',
-    
+    INVALID_CREDENTIALS: 'Invalid email or password. Please check your credentials and try again.',
+    MISSING_CREDENTIALS: 'Please enter both email and password.',
+    ACCOUNT_LOCKED: 'Your account has been temporarily locked. Please try again later.',
+    ACCOUNT_DISABLED: 'Your account has been disabled. Please contact support.',
+
     // Registration errors
-    'EMAIL_EXISTS': 'An account with this email already exists. Please use a different email or try logging in.',
-    'INVALID_EMAIL': 'Please enter a valid email address.',
-    'INVALID_PASSWORD': 'Password must be at least 8 characters long and contain a mix of letters, numbers, and special characters.',
-    'PASSWORD_MISMATCH': 'Passwords do not match. Please make sure both password fields are identical.',
-    'MISSING_REQUIRED_FIELDS': 'Please fill in all required fields.',
-    
+    EMAIL_EXISTS:
+      'An account with this email already exists. Please use a different email or try logging in.',
+    INVALID_EMAIL: 'Please enter a valid email address.',
+    INVALID_PASSWORD:
+      'Password must be at least 8 characters long and contain a mix of letters, numbers, and special characters.',
+    PASSWORD_MISMATCH:
+      'Passwords do not match. Please make sure both password fields are identical.',
+    MISSING_REQUIRED_FIELDS: 'Please fill in all required fields.',
+
     // Password reset errors
-    'INVALID_RESET_TOKEN': 'This password reset link is invalid or has expired. Please request a new one.',
-    'EXPIRED_RESET_TOKEN': 'This password reset link has expired. Please request a new one.',
-    'RESET_TOKEN_USED': 'This password reset link has already been used. Please request a new one if needed.',
-    'USER_NOT_FOUND': 'If an account with this email exists, we\'ve sent you a password reset link.',
-    
+    INVALID_RESET_TOKEN:
+      'This password reset link is invalid or has expired. Please request a new one.',
+    EXPIRED_RESET_TOKEN: 'This password reset link has expired. Please request a new one.',
+    RESET_TOKEN_USED:
+      'This password reset link has already been used. Please request a new one if needed.',
+    USER_NOT_FOUND: "If an account with this email exists, we've sent you a password reset link.",
+
     // Session errors
-    'SESSION_EXPIRED': 'Your session has expired. Please log in again.',
-    'INVALID_TOKEN': 'Your session is invalid. Please log in again.',
-    'TOKEN_REFRESH_FAILED': 'Unable to refresh your session. Please log in again.',
-    
+    SESSION_EXPIRED: 'Your session has expired. Please log in again.',
+    INVALID_TOKEN: 'Your session is invalid. Please log in again.',
+    TOKEN_REFRESH_FAILED: 'Unable to refresh your session. Please log in again.',
+
     // Network and server errors
-    'NETWORK_ERROR': 'Unable to connect to the server. Please check your internet connection and try again.',
-    'SERVER_ERROR': 'A server error occurred. Please try again in a few moments.',
-    'SERVICE_UNAVAILABLE': 'The service is temporarily unavailable. Please try again later.',
-    'RATE_LIMITED': 'Too many requests. Please wait a moment before trying again.',
-    
+    NETWORK_ERROR:
+      'Unable to connect to the server. Please check your internet connection and try again.',
+    SERVER_ERROR: 'A server error occurred. Please try again in a few moments.',
+    SERVICE_UNAVAILABLE: 'The service is temporarily unavailable. Please try again later.',
+    RATE_LIMITED: 'Too many requests. Please wait a moment before trying again.',
+
     // Validation errors
-    'VALIDATION_ERROR': 'Please check your input and try again.',
-    'FORM_INVALID': 'Please correct the errors in the form and try again.',
-    
+    VALIDATION_ERROR: 'Please check your input and try again.',
+    FORM_INVALID: 'Please correct the errors in the form and try again.',
+
     // Generic errors
-    'UNKNOWN_ERROR': 'An unexpected error occurred. Please try again.',
-    'CLIENT_ERROR': 'There was a problem with your request. Please try again.'
+    UNKNOWN_ERROR: 'An unexpected error occurred. Please try again.',
+    CLIENT_ERROR: 'There was a problem with your request. Please try again.',
   }
 
   return errorMessages[errorCode] || defaultMessage || errorMessages['UNKNOWN_ERROR']
@@ -197,11 +204,11 @@ export function validatePasswordStrength(password: string): string[] {
  */
 export function formatValidationErrors(errors: ValidationError[]): Record<string, string> {
   const formattedErrors: Record<string, string> = {}
-  
+
   errors.forEach(error => {
     formattedErrors[error.field] = error.message
   })
-  
+
   return formattedErrors
 }
 
@@ -212,9 +219,9 @@ export function isNetworkError(error: any): boolean {
   return (
     !error.response &&
     (error.code === 'NETWORK_ERROR' ||
-     error.message?.includes('fetch') ||
-     error.message?.includes('network') ||
-     error.name === 'NetworkError')
+      error.message?.includes('fetch') ||
+      error.message?.includes('network') ||
+      error.name === 'NetworkError')
   )
 }
 
@@ -222,11 +229,7 @@ export function isNetworkError(error: any): boolean {
  * Checks if an error is a server error (5xx)
  */
 export function isServerError(error: any): boolean {
-  return (
-    error.response?.status >= 500 ||
-    error.statusCode >= 500 ||
-    error.code === 'SERVER_ERROR'
-  )
+  return error.response?.status >= 500 || error.statusCode >= 500 || error.code === 'SERVER_ERROR'
 }
 
 /**
@@ -253,6 +256,6 @@ export function createErrorResponse(
     message,
     field,
     statusCode,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 }

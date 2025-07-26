@@ -51,9 +51,7 @@ export default function UserMenu() {
           </span>
         </div>
         <div className="hidden sm:block text-left">
-          <div className="text-sm font-medium text-gray-900 truncate max-w-32">
-            {user.email}
-          </div>
+          <div className="text-sm font-medium text-gray-900 truncate max-w-32">{user.email}</div>
         </div>
         <svg
           className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -74,7 +72,7 @@ export default function UserMenu() {
               Member since {new Date(user.createdAt).toLocaleDateString()}
             </div>
           </div>
-          
+
           <div className="py-1">
             <button
               onClick={handleLogout}
@@ -82,7 +80,12 @@ export default function UserMenu() {
               className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
               </svg>
               <span>{isLoading ? 'Signing out...' : 'Sign out'}</span>
             </button>

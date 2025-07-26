@@ -19,7 +19,7 @@ jest.mock('next/navigation', () => ({
 // Test component to access auth context
 const TestComponent = () => {
   const auth = useAuth()
-  
+
   const handleLogin = async () => {
     try {
       await auth.login('test@example.com', 'password123')
@@ -51,27 +51,17 @@ const TestComponent = () => {
       // Error is already handled by the context
     }
   }
-  
+
   return (
     <div>
       <div data-testid="user">{auth.user ? auth.user.email : 'No user'}</div>
       <div data-testid="loading">{auth.isLoading ? 'Loading' : 'Not loading'}</div>
       <div data-testid="error">{auth.error || 'No error'}</div>
-      <button onClick={handleLogin}>
-        Login
-      </button>
-      <button onClick={handleRegister}>
-        Register
-      </button>
-      <button onClick={() => auth.logout()}>
-        Logout
-      </button>
-      <button onClick={handleResetPassword}>
-        Reset Password
-      </button>
-      <button onClick={handleUpdatePassword}>
-        Update Password
-      </button>
+      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleRegister}>Register</button>
+      <button onClick={() => auth.logout()}>Logout</button>
+      <button onClick={handleResetPassword}>Reset Password</button>
+      <button onClick={handleUpdatePassword}>Update Password</button>
     </div>
   )
 }
@@ -110,7 +100,7 @@ describe('AuthContext', () => {
 
       // Should start in loading state
       expect(screen.getByTestId('loading')).toHaveTextContent('Loading')
-      
+
       // Wait for auth check to complete
       await waitFor(() => {
         expect(screen.getByTestId('loading')).toHaveTextContent('Not loading')
@@ -124,7 +114,7 @@ describe('AuthContext', () => {
         id: '123',
         email: 'test@example.com',
         createdAt: '2024-01-01T00:00:00.000Z',
-        lastLoginAt: '2024-01-01T00:00:00.000Z'
+        lastLoginAt: '2024-01-01T00:00:00.000Z',
       }
 
       ;(fetch as jest.Mock).mockResolvedValueOnce({
@@ -146,7 +136,7 @@ describe('AuthContext', () => {
         id: '123',
         email: 'test@example.com',
         createdAt: '2024-01-01T00:00:00.000Z',
-        lastLoginAt: '2024-01-01T00:00:00.000Z'
+        lastLoginAt: '2024-01-01T00:00:00.000Z',
       }
 
       // Mock initial auth check (fails)
@@ -169,7 +159,7 @@ describe('AuthContext', () => {
       })
 
       const loginButton = screen.getByText('Login')
-      
+
       await act(async () => {
         loginButton.click()
       })
@@ -201,9 +191,9 @@ describe('AuthContext', () => {
         .mockResolvedValueOnce({
           ok: false,
           status: 401,
-          json: async () => ({ 
+          json: async () => ({
             error: 'INVALID_CREDENTIALS',
-            message: 'Invalid credentials' 
+            message: 'Invalid credentials',
           }),
         })
 
@@ -215,7 +205,7 @@ describe('AuthContext', () => {
       })
 
       const loginButton = screen.getByText('Login')
-      
+
       await act(async () => {
         try {
           loginButton.click()
@@ -225,7 +215,9 @@ describe('AuthContext', () => {
       })
 
       await waitFor(() => {
-        expect(screen.getByTestId('error')).toHaveTextContent('Invalid email or password. Please check your credentials and try again.')
+        expect(screen.getByTestId('error')).toHaveTextContent(
+          'Invalid email or password. Please check your credentials and try again.'
+        )
         expect(screen.getByTestId('user')).toHaveTextContent('No user')
       })
     })
@@ -238,7 +230,7 @@ describe('AuthContext', () => {
       })
 
       let resolvePromise: (value: any) => void
-      const loginPromise = new Promise((resolve) => {
+      const loginPromise = new Promise(resolve => {
         resolvePromise = resolve
       })
 
@@ -253,7 +245,7 @@ describe('AuthContext', () => {
       ;(fetch as jest.Mock).mockReturnValueOnce(loginPromise)
 
       const loginButton = screen.getByText('Login')
-      
+
       act(() => {
         loginButton.click()
       })
@@ -280,7 +272,7 @@ describe('AuthContext', () => {
         id: '123',
         email: 'test@example.com',
         createdAt: '2024-01-01T00:00:00.000Z',
-        lastLoginAt: '2024-01-01T00:00:00.000Z'
+        lastLoginAt: '2024-01-01T00:00:00.000Z',
       }
 
       // Mock initial auth check (fails)
@@ -304,7 +296,7 @@ describe('AuthContext', () => {
       })
 
       const registerButton = screen.getByText('Register')
-      
+
       await act(async () => {
         registerButton.click()
       })
@@ -337,9 +329,9 @@ describe('AuthContext', () => {
         .mockResolvedValueOnce({
           ok: false,
           status: 409,
-          json: async () => ({ 
+          json: async () => ({
             error: 'EMAIL_EXISTS',
-            message: 'Email already exists' 
+            message: 'Email already exists',
           }),
         })
 
@@ -351,13 +343,15 @@ describe('AuthContext', () => {
       })
 
       const registerButton = screen.getByText('Register')
-      
+
       await act(async () => {
         registerButton.click()
       })
 
       await waitFor(() => {
-        expect(screen.getByTestId('error')).toHaveTextContent('An account with this email already exists. Please use a different email or try logging in.')
+        expect(screen.getByTestId('error')).toHaveTextContent(
+          'An account with this email already exists. Please use a different email or try logging in.'
+        )
       })
     })
   })
@@ -369,7 +363,7 @@ describe('AuthContext', () => {
         id: '123',
         email: 'test@example.com',
         createdAt: '2024-01-01T00:00:00.000Z',
-        lastLoginAt: '2024-01-01T00:00:00.000Z'
+        lastLoginAt: '2024-01-01T00:00:00.000Z',
       }
 
       ;(fetch as jest.Mock)
@@ -430,7 +424,7 @@ describe('AuthContext', () => {
       })
 
       const resetButton = screen.getByText('Reset Password')
-      
+
       await act(async () => {
         resetButton.click()
       })
@@ -463,7 +457,7 @@ describe('AuthContext', () => {
       })
 
       const updateButton = screen.getByText('Update Password')
-      
+
       await act(async () => {
         updateButton.click()
       })
@@ -498,13 +492,15 @@ describe('AuthContext', () => {
       })
 
       const loginButton = screen.getByText('Login')
-      
+
       await act(async () => {
         loginButton.click()
       })
 
       await waitFor(() => {
-        expect(screen.getByTestId('error')).toHaveTextContent('Unable to connect to the server. Please check your internet connection and try again.')
+        expect(screen.getByTestId('error')).toHaveTextContent(
+          'Unable to connect to the server. Please check your internet connection and try again.'
+        )
       })
     })
 
@@ -531,13 +527,15 @@ describe('AuthContext', () => {
       })
 
       const loginButton = screen.getByText('Login')
-      
+
       await act(async () => {
         loginButton.click()
       })
 
       await waitFor(() => {
-        expect(screen.getByTestId('error')).toHaveTextContent('Unable to connect to the server. Please check your internet connection and try again.')
+        expect(screen.getByTestId('error')).toHaveTextContent(
+          'Unable to connect to the server. Please check your internet connection and try again.'
+        )
       })
 
       // Then perform successful operation

@@ -45,7 +45,7 @@ describe('Middleware', () => {
 
     it('should allow authenticated users to access protected routes', () => {
       verifyJWTToken.mockReturnValue({ userId: '123', email: 'test@example.com' })
-      
+
       const request = createRequest('/', 'valid-token')
       const response = middleware(request)
 
@@ -91,7 +91,7 @@ describe('Middleware', () => {
   describe('Auth Redirect Routes', () => {
     it('should redirect authenticated users away from login page', () => {
       verifyJWTToken.mockReturnValue({ userId: '123', email: 'test@example.com' })
-      
+
       const request = createRequest('/login', 'valid-token')
       const response = middleware(request)
 
@@ -101,7 +101,7 @@ describe('Middleware', () => {
 
     it('should redirect authenticated users away from register page', () => {
       verifyJWTToken.mockReturnValue({ userId: '123', email: 'test@example.com' })
-      
+
       const request = createRequest('/register', 'valid-token')
       const response = middleware(request)
 
@@ -111,7 +111,7 @@ describe('Middleware', () => {
 
     it('should redirect authenticated users to returnUrl when provided', () => {
       verifyJWTToken.mockReturnValue({ userId: '123', email: 'test@example.com' })
-      
+
       const request = createRequest('/login?returnUrl=/demo-auth', 'valid-token')
       const response = middleware(request)
 
@@ -123,7 +123,7 @@ describe('Middleware', () => {
   describe('Token Expiration Handling', () => {
     it('should clear expired token and redirect to login', () => {
       verifyJWTToken.mockReturnValue(null) // Invalid/expired token
-      
+
       const request = createRequest('/', 'expired-token')
       const response = middleware(request)
 
