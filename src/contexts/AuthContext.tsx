@@ -102,7 +102,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  const register = async (email: string, password: string): Promise<void> => {
+  const register = async (email: string, password: string, confirmPassword: string): Promise<void> => {
     try {
       setIsLoading(true)
       setError(null)
@@ -113,7 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, confirmPassword }),
       })
 
       if (!response.ok) {

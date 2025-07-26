@@ -86,7 +86,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     setErrors({ general: undefined }) // Only clear general errors, keep field errors
 
     try {
-      await register(email, password)
+      await register(email, password, confirmPassword)
       onSuccess?.()
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.'

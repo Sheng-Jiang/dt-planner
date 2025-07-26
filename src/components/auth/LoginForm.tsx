@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { validateAuthForm, formatValidationErrors } from '@/lib/errorHandling'
 import { ErrorDisplay, FieldError } from '@/components/auth/ErrorDisplay'
@@ -14,6 +15,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
   
   const { login } = useAuth()
 
@@ -48,7 +50,11 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
 
     try {
       await login(email, password)
-      onSuccess?.()
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        router.push('/dashboard')
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Invalid email or password'
       setErrors({ general: errorMessage })

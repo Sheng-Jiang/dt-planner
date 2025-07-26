@@ -6,6 +6,13 @@
       "passwordHash": "$2b$12$ytt7bf8CgYAEUvZ0EaLIw.5IaTJJlOOsNCWNBg23PTCwFkAIqgnyG",
       "createdAt": "2025-07-16T00:41:35.227Z",
       "lastLoginAt": "2025-07-16T00:41:35.227Z"
+    },
+    {
+      "id": "43b226a0-cede-4e1e-8972-0146c6604a51",
+      "email": "sheng_seattle@163.com",
+      "passwordHash": "$2a$12$ba4RMkOACl4eQ4KySukygOKVsp22cocKwsuSOjCDo.NGOdon7y/TC",
+      "createdAt": "2025-07-26T11:29:33.418Z",
+      "lastLoginAt": "2025-07-26T11:34:02.364Z"
     }
   ]
 }

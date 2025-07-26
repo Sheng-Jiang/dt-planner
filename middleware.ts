@@ -3,7 +3,6 @@ import { verifyJWTToken } from '@/lib/auth'
 
 // Define protected and public routes
 const protectedRoutes = [
-  '/', // Main strategy canvas should be protected as it contains user data
   '/dashboard',
   '/profile',
   '/demo-auth', // Existing demo auth page should be protected
@@ -63,7 +62,7 @@ export function middleware(request: NextRequest) {
   if (isAuthRedirectRoute && isAuthenticated) {
     // Redirect to home page or return URL
     const returnUrl = request.nextUrl.searchParams.get('returnUrl')
-    const redirectUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/'
+    const redirectUrl = returnUrl && returnUrl.startsWith('/') ? returnUrl : '/dashboard'
     return NextResponse.redirect(new URL(redirectUrl, request.url))
   }
 
